@@ -16,6 +16,7 @@
 #include "pcl_filters.hpp"
 #include <vtkRenderWindow.h>
 #include <QVTKWidget.h>
+#include "opencv2/core.hpp"
 
 
 namespace agilus_master_project {
@@ -33,6 +34,8 @@ public:
 
 	void closeEvent(QCloseEvent *event); // Overloaded function
     void displayNewPointCloud(boost::shared_ptr<pcl::visualization::PCLVisualizer> vis);
+    QImage mat2qimage(cv::Mat& mat);
+    std::string type2str(int type);
     void drawShapes();
     void init();
 
@@ -41,12 +44,16 @@ public Q_SLOTS:
     //Autoconnected
      void on_loadPCDButton_clicked(bool check);
      void on_subscribeToTopicButton_clicked(bool check);
+     void on_subscribeToTopicButton2_clicked(bool check);
      void on_detectObjectsButton_clicked(bool check);
+     void on_testdritt_clicked(bool check);
      void updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+     void update2Dimage(cv::Mat image);
      void printToLog(QString text);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);
+     void subscribeTo2DobjectDetected(QString topic);
 
 private:
 	Ui::MainWindowDesign ui;

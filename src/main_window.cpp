@@ -25,10 +25,13 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     , currentCloud(new pcl::PointCloud<pcl::PointXYZ>)
 {
     qRegisterMetaType<pcl::PointCloud<pcl::PointXYZ>::Ptr >("pcl::PointCloud<pcl::PointXYZ>::Ptr");
+    qRegisterMetaType<cv::Mat>("cv::Mat");
     ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
     QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
     QObject::connect(this,SIGNAL(subscribeToPointCloud2(QString)),&qnode,SLOT(subscribeToPointCloud2(QString)));
+    QObject::connect(this,SIGNAL(subscribeTo2DobjectDetected(QString)),&qnode,SLOT(subscribeTo2DobjectDetected(QString)));
     QObject::connect(&qnode,SIGNAL(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)),this,SLOT(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)));
+    QObject::connect(&qnode,SIGNAL(update2Dimage(cv::Mat)),this,SLOT(update2Dimage(cv::Mat)));
     init();
 }
 
@@ -116,7 +119,7 @@ void MainWindow::init()
     ui.objectsListB->addItems(objects);
 
 
-    QStringList list;
+    QStringList list, list2;
     QString tmp;
     ros::master::V_TopicInfo master_topics;
     ros::master::getTopics(master_topics);
@@ -132,6 +135,18 @@ void MainWindow::init()
         }
     }
     ui.topicComboBox->addItems(list);
+
+    for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
+        const ros::master::TopicInfo& info = *it;
+        //std::cout << "Topic : " << it - master_topics.begin() << ": " << info.name << " -> " << info.datatype <<       std::endl;
+        tmp = QString::fromUtf8(info.datatype.c_str());
+
+        // Add more types if needed
+        if(QString::compare(tmp, "sensor_msgs/Image", Qt::CaseInsensitive) == 0){
+            list2.append(QString::fromUtf8(info.name.c_str()));
+        }
+    }
+    ui.topicComboBox2->addItems(list2);
     ui.logViewer->insertPlainText("User interface initiated");
 }
 
@@ -145,6 +160,103 @@ void MainWindow::updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
         w1->update();
         *currentCloud = *cloud;
     }
+}
+
+void MainWindow::update2Dimage(cv::Mat image)
+{
+    std::cout << "Updating 2D image" << std::endl;
+    std::string ty = type2str(image.type());
+    std::cout << ty.c_str() << std::endl;
+    QImage tmp = mat2qimage(image);
+    std::cout << "Made QImage" << std::endl;
+    //QPixmap pixmap;
+    //pixmap.fromImage(tmp);
+    //std::cout << "Made pixmap" << std::endl;
+    ui.label2D->setPixmap(QPixmap::fromImage(tmp));
+    qnode.setImageReading(false);
+}
+
+QImage MainWindow::mat2qimage(cv::Mat& mat) {
+    switch (mat.type()) {
+        // 8-bit, 4 channel
+        case CV_8UC4: {
+            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
+            return image;
+        }
+
+        // 8-bit, 3 channel
+        case CV_8UC3: {
+        std::cout << "HEi" << std::endl;
+            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+            std::cout << "HELLO" << std::endl;
+            return image.rgbSwapped();
+        }
+
+        // 8-bit, 1 channel
+        case CV_8UC1: {
+            static QVector<QRgb>  sColorTable;
+
+            // only create our color table once
+            if (sColorTable.isEmpty()) {
+                for (int i = 0; i < 256; ++i)
+                    sColorTable.push_back(qRgb(i, i, i));
+            }
+
+            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
+            image.setColorTable(sColorTable);
+
+            return image;
+        }
+
+        default:
+            std::cout << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << mat.type();
+            break;
+    }
+
+    return QImage();
+}
+
+std::string MainWindow::type2str(int type) {
+    std::string r;
+
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+    switch (depth) {
+        case CV_8U:
+            r = "8U";
+            break;
+        case CV_8S:
+            r = "8S";
+            break;
+        case CV_16U:
+            r = "16U";
+            break;
+        case CV_16S:
+            r = "16S";
+            break;
+        case CV_32S:
+            r = "32S";
+            break;
+        case CV_32F:
+            r = "32F";
+            break;
+        case CV_64F:
+            r = "64F";
+            break;
+        default:
+            r = "User";
+            break;
+    }
+
+    r += "C";
+    r += (chans + '0');
+
+    // USAGE
+    //    std::string ty =  type2str( H.type() );
+    //    printf("Matrix: %s %dx%d \n", ty.c_str(), H.cols, H.rows );
+
+    return r;
 }
 
 void MainWindow::printToLog(QString text)
@@ -191,6 +303,11 @@ void MainWindow::on_subscribeToTopicButton_clicked(bool check)
     Q_EMIT subscribeToPointCloud2(ui.topicComboBox->currentText());
 }
 
+void MainWindow::on_subscribeToTopicButton2_clicked(bool check)
+{
+    Q_EMIT subscribeTo2DobjectDetected(ui.topicComboBox2->currentText());
+}
+
 void MainWindow::on_detectObjectsButton_clicked(bool check)
 {
     //detect objects here
@@ -215,6 +332,11 @@ void MainWindow::on_detectObjectsButton_clicked(bool check)
 
     std::cout << "part a in world: " << std::endl << partAInTag << std::endl;
     std::cout << "part b in world: " << std::endl << partBInTag << std::endl;
+}
+
+void MainWindow::on_testdritt_clicked(bool check)
+{
+
 }
 
 }  // namespace agilus_master_project
