@@ -30,7 +30,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(this,SIGNAL(subscribeToPointCloud2(QString)),&qnode,SLOT(subscribeToPointCloud2(QString)));
     QObject::connect(&qnode,SIGNAL(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)),this,SLOT(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)));
     init();
-
 }
 
 MainWindow::~MainWindow() {}

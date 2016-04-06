@@ -34,6 +34,7 @@ public:
 	void closeEvent(QCloseEvent *event); // Overloaded function
     void displayNewPointCloud(boost::shared_ptr<pcl::visualization::PCLVisualizer> vis);
     void drawShapes();
+    void init();
 
 
 public Q_SLOTS:

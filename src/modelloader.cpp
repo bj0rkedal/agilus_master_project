@@ -19,7 +19,7 @@ ModelLoader::ModelLoader(std::string mesh_name) :
 {
     this->mesh_name = mesh_name;
     this->setCloudResolution(960);
-    this->setPath(ros::package::getPath("qt_filter_tester") + "/trace_clouds/");
+    this->setPath(ros::package::getPath("agilus_master_project") + "/trace_clouds/");
     this->setTesselation_level(1);
 
 }
