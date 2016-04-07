@@ -31,8 +31,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(this,SIGNAL(subscribeToPointCloud2(QString)),&qnode,SLOT(subscribeToPointCloud2(QString)));
     QObject::connect(this,SIGNAL(subscribeTo2DobjectDetected(QString)),&qnode,SLOT(subscribeTo2DobjectDetected(QString)));
     QObject::connect(&qnode,SIGNAL(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)),this,SLOT(updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr)));
-    QObject::connect(&qnode,SIGNAL(update2Dimage(cv::Mat)),this,SLOT(update2Dimage(cv::Mat)));
+    QObject::connect(&qnode,SIGNAL(update2Dimage(QImage)),this,SLOT(update2Dimage(QImage)));
+    QObject::connect(this,SIGNAL(setProcessImageRunning(bool)),&qnode,SLOT(setProcessImageRunning(bool)));
+    QObject::connect(this,SIGNAL(setProcessImageColor(bool)),&qnode,SLOT(setProcessImageColor(bool)));
+    QObject::connect(this,SIGNAL(setProcessImageUndistort(bool)),&qnode,SLOT(setProcessImageUndistort(bool)));
+    QObject::connect(this,SIGNAL(setProcessImageBruteforce(bool)),&qnode,SLOT(setProcessImageBruteforce(bool)));
+    QObject::connect(this,SIGNAL(setProcessImageKeypointDescriptor(std::string,std::string)),&qnode,SLOT(setProcessImageKeypointDescriptor(std::string,std::string)));
+    QObject::connect(this,SIGNAL(setProcessImageMatchingPicture(std::string)),&qnode,SLOT(setProcessImageMatchingPicture(std::string)));
+    QObject::connect(this,SIGNAL(plan_ag1(double,double,double,double,double,double)),&qnode,SLOT(plan_ag1(double,double,double,double,double,double)));
+    QObject::connect(this,SIGNAL(plan_ag2(double,double,double,double,double,double)),&qnode,SLOT(plan_ag2(double,double,double,double,double,double)));
+    QObject::connect(this,SIGNAL(move_ag1(double,double,double,double,double,double)),&qnode,SLOT(move_ag1(double,double,double,double,double,double)));
+    QObject::connect(this,SIGNAL(move_ag2(double,double,double,double,double,double)),&qnode,SLOT(move_ag2(double,double,double,double,double,double)));
     init();
+    init_descriptor_keypoint_combobox();
+    initRobotUI();
 }
 
 MainWindow::~MainWindow() {}
@@ -54,6 +66,7 @@ void MainWindow::displayNewPointCloud(boost::shared_ptr<pcl::visualization::PCLV
 
 void MainWindow::drawShapes()
 {
+    viewer1->removeAllShapes();
     if(ui.boxesCheckbox->isChecked()){
         viewer1->addCube(-0.510, -0.130, -0.5, 0.3, 0.76, 1.19, 0, 1.0, 0, "partA", 0);
         viewer1->addCube(-0.130, 0.27, -0.5, 0.3, 0.76, 1.19, 1.0, 0, 0, "partB", 0);
@@ -63,6 +76,7 @@ void MainWindow::drawShapes()
         viewer1->addCoordinateSystem(0.2,camera);
         viewer1->addCoordinateSystem(0.5,worldFrame);
     }
+    w1->update();
 }
 
 void MainWindow::init()
@@ -73,11 +87,11 @@ void MainWindow::init()
     runStream = false;
 
     box = new ModelLoader("nuc-42-100");
-    box->populateLoader();
+    //box->populateLoader();
     cone = new ModelLoader("cone-42-200");
-    cone->populateLoader();
+    //cone->populateLoader();
     freak = new ModelLoader("freakthing-42-200");
-    freak->populateLoader();
+    //freak->populateLoader();
     models.push_back(box);
     models.push_back(cone);
     models.push_back(freak);
@@ -99,9 +113,9 @@ void MainWindow::init()
             0, 0, 0, 1;
 
     worldToTag << 1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0.87,
-            0, 0, 0, 1;
+                0, 1, 0, 0,
+                0, 0, 1, 0.87,
+                0, 0, 0, 1;
 
     tagToWorld = worldToTag.inverse();
     tagToCamera = cameraToTag.inverse();
@@ -150,6 +164,46 @@ void MainWindow::init()
     ui.logViewer->insertPlainText("User interface initiated");
 }
 
+void MainWindow::init_descriptor_keypoint_combobox()
+{
+    QStringList keyPointLabels;
+    QStringList descriptorLabels;
+    descriptorLabels.append("SIFT");
+    descriptorLabels.append("SURF");
+    descriptorLabels.append("BRIEF");
+    descriptorLabels.append("BRISK");
+    descriptorLabels.append("FREAK");
+    descriptorLabels.append("ORB");
+    descriptorLabels.append("AKAZE");
+    keyPointLabels.append("SIFT");
+    keyPointLabels.append("SURF");
+    keyPointLabels.append("FAST");
+    keyPointLabels.append("STAR");
+    keyPointLabels.append("BRISK");
+    keyPointLabels.append("ORB");
+    keyPointLabels.append("AKAZE");
+    ui.descriptorComboBox->addItems(descriptorLabels);
+    ui.keypointComboBox->addItems(keyPointLabels);
+    ui.keypointComboBox->setCurrentIndex(1);
+    ui.descriptorComboBox->setCurrentIndex(1);
+}
+
+void MainWindow::initRobotUI()
+{
+    QStringList manipulators;
+    manipulators.append("KUKA Agilus 1");
+    manipulators.append("KUKA Agilus 2");
+    ui.robotComboBox->addItems(manipulators);
+
+    homeX = 0.445;
+    homeY1 = -0.6025;
+    homeY2 = 0.6025;
+    homeZ = 1.66;
+    homeRoll = 0.0;
+    homePitch = 180.0;
+    homeYaw = 0.0;
+}
+
 void MainWindow::updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
     if(runStream){
@@ -162,101 +216,11 @@ void MainWindow::updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
     }
 }
 
-void MainWindow::update2Dimage(cv::Mat image)
+void MainWindow::update2Dimage(QImage image)
 {
-    std::cout << "Updating 2D image" << std::endl;
-    std::string ty = type2str(image.type());
-    std::cout << ty.c_str() << std::endl;
-    QImage tmp = mat2qimage(image);
-    std::cout << "Made QImage" << std::endl;
-    //QPixmap pixmap;
-    //pixmap.fromImage(tmp);
-    //std::cout << "Made pixmap" << std::endl;
-    ui.label2D->setPixmap(QPixmap::fromImage(tmp));
+    saveImage = image;
+    ui.label2D->setPixmap(QPixmap::fromImage(image));
     qnode.setImageReading(false);
-}
-
-QImage MainWindow::mat2qimage(cv::Mat& mat) {
-    switch (mat.type()) {
-        // 8-bit, 4 channel
-        case CV_8UC4: {
-            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
-            return image;
-        }
-
-        // 8-bit, 3 channel
-        case CV_8UC3: {
-        std::cout << "HEi" << std::endl;
-            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
-            std::cout << "HELLO" << std::endl;
-            return image.rgbSwapped();
-        }
-
-        // 8-bit, 1 channel
-        case CV_8UC1: {
-            static QVector<QRgb>  sColorTable;
-
-            // only create our color table once
-            if (sColorTable.isEmpty()) {
-                for (int i = 0; i < 256; ++i)
-                    sColorTable.push_back(qRgb(i, i, i));
-            }
-
-            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
-            image.setColorTable(sColorTable);
-
-            return image;
-        }
-
-        default:
-            std::cout << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << mat.type();
-            break;
-    }
-
-    return QImage();
-}
-
-std::string MainWindow::type2str(int type) {
-    std::string r;
-
-    uchar depth = type & CV_MAT_DEPTH_MASK;
-    uchar chans = 1 + (type >> CV_CN_SHIFT);
-
-    switch (depth) {
-        case CV_8U:
-            r = "8U";
-            break;
-        case CV_8S:
-            r = "8S";
-            break;
-        case CV_16U:
-            r = "16U";
-            break;
-        case CV_16S:
-            r = "16S";
-            break;
-        case CV_32S:
-            r = "32S";
-            break;
-        case CV_32F:
-            r = "32F";
-            break;
-        case CV_64F:
-            r = "64F";
-            break;
-        default:
-            r = "User";
-            break;
-    }
-
-    r += "C";
-    r += (chans + '0');
-
-    // USAGE
-    //    std::string ty =  type2str( H.type() );
-    //    printf("Matrix: %s %dx%d \n", ty.c_str(), H.cols, H.rows );
-
-    return r;
 }
 
 void MainWindow::printToLog(QString text)
@@ -267,10 +231,140 @@ void MainWindow::printToLog(QString text)
     ui.logViewer->insertPlainText(header);
 }
 
+void MainWindow::on_saveImageButton_clicked(bool check)
+{
+    QImage tmpImage = saveImage;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "/home/minions",tr("Image (*.png)"));
+    if(fileName.length() != 0) {
+        if(!fileName.endsWith(".png",Qt::CaseInsensitive)){
+            fileName.append(".png");
+        }
+        QString tmpstring = "Saving .png to ";
+        tmpstring.append(fileName);
+        printToLog(tmpstring);
+        tmpImage.save(fileName);
+    }
+}
+
+void MainWindow::on_boxesCheckbox_clicked(bool check){
+    drawShapes();
+}
+
+void MainWindow::on_framesCheckbox_clicked(bool check){
+    drawShapes();
+}
+
+void MainWindow::on_runningCheckBox_clicked(bool check)
+{
+    Q_EMIT setProcessImageRunning(check);
+    if(check) {
+        printToLog("Image detection running");
+    } else {
+        printToLog("Image detection not running");
+    }
+}
+
+void MainWindow::on_colorCheckBox_clicked(bool check)
+{
+    Q_EMIT setProcessImageColor(check);
+    if(check) {
+        printToLog("Color image");
+    } else {
+        printToLog("Grayscale image");
+    }
+}
+
+void MainWindow::on_undistortCheckBox_clicked(bool check)
+{
+    Q_EMIT setProcessImageUndistort(check);
+    if(check) {
+        printToLog("Distorted image");
+    } else {
+        printToLog("Undistorted image");
+    }
+}
+
+void MainWindow::on_bruteforceCheckBox_clicked(bool check)
+{
+    Q_EMIT setProcessImageBruteforce(check);
+    if(check) {
+        printToLog("Bruteforce matching");
+    } else {
+        printToLog("FLANN Matching");
+    }
+}
+
+void MainWindow::on_updateSettingsPushButton_clicked(bool check)
+{
+    Q_EMIT setProcessImageKeypointDescriptor(ui.keypointComboBox->currentText().toStdString(),
+                                             ui.descriptorComboBox->currentText().toStdString());
+}
+
+void MainWindow::on_imageToDetectButton_clicked(bool check)
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/minions",tr("Image (*.png)"));
+    if(fileName.length() != 0) {
+        QString tmpstring = "Loading matching image from ";
+        tmpstring.append(fileName);
+        printToLog(tmpstring);
+        Q_EMIT setProcessImageMatchingPicture(fileName.toStdString());
+    }
+}
+
+void MainWindow::on_planTrajPushButton_clicked(bool check)
+{
+    if(ui.robotComboBox->currentIndex()==0) {
+        Q_EMIT plan_ag1(ui.xPosDoubleSpinBox->value()+homeX,
+                        ui.yPosDoubleSpinBox->value()+homeY1,
+                        ui.zPosDoubleSpinBox->value()+homeZ,
+                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+
+    } else if(ui.robotComboBox->currentIndex()==1) {
+        Q_EMIT plan_ag2(ui.xPosDoubleSpinBox->value()+homeX,
+                        ui.yPosDoubleSpinBox->value()+homeY2,
+                        ui.zPosDoubleSpinBox->value()+homeZ,
+                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+    }
+}
+
+void MainWindow::on_moveManipPushButton_clicked(bool check)
+{
+    if(ui.robotComboBox->currentIndex()==0) {
+        Q_EMIT move_ag1(ui.xPosDoubleSpinBox->value()+homeX,
+                        ui.yPosDoubleSpinBox->value()+homeY1,
+                        ui.zPosDoubleSpinBox->value()+homeZ,
+                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+
+    } else if(ui.robotComboBox->currentIndex()==1) {
+        Q_EMIT move_ag2(ui.xPosDoubleSpinBox->value()+homeX,
+                        ui.yPosDoubleSpinBox->value()+homeY2,
+                        ui.zPosDoubleSpinBox->value()+homeZ,
+                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+    }
+}
+
+void MainWindow::on_homeManipPushButton_clicked(bool check)
+{
+    ui.xPosDoubleSpinBox->setValue(0.0);
+    ui.yPosDoubleSpinBox->setValue(0.0);
+    ui.zPosDoubleSpinBox->setValue(0.0);
+    ui.rollDoubleSpinBox->setValue(0.0);
+    ui.pitchDoubleSpinBox->setValue(0.0);
+    ui.yawDoubleSpinBox->setValue(0.0);
+}
+
 void MainWindow::on_loadPCDButton_clicked(bool check)
 {
     runStream = false;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/minions",tr("PointCload (*.pcd)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/minions",tr("PointCloud (*.pcd)"));
     if(fileName.length() != 0){
         //Non empty string
         QString tmpstring = "Loading .pcd from ";
@@ -332,11 +426,6 @@ void MainWindow::on_detectObjectsButton_clicked(bool check)
 
     std::cout << "part a in world: " << std::endl << partAInTag << std::endl;
     std::cout << "part b in world: " << std::endl << partBInTag << std::endl;
-}
-
-void MainWindow::on_testdritt_clicked(bool check)
-{
-
 }
 
 }  // namespace agilus_master_project

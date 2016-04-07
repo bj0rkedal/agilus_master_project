@@ -34,10 +34,10 @@ public:
 
 	void closeEvent(QCloseEvent *event); // Overloaded function
     void displayNewPointCloud(boost::shared_ptr<pcl::visualization::PCLVisualizer> vis);
-    QImage mat2qimage(cv::Mat& mat);
-    std::string type2str(int type);
     void drawShapes();
     void init();
+    void init_descriptor_keypoint_combobox();
+    void initRobotUI();
 
 
 public Q_SLOTS:
@@ -46,14 +46,39 @@ public Q_SLOTS:
      void on_subscribeToTopicButton_clicked(bool check);
      void on_subscribeToTopicButton2_clicked(bool check);
      void on_detectObjectsButton_clicked(bool check);
-     void on_testdritt_clicked(bool check);
      void updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-     void update2Dimage(cv::Mat image);
+     void update2Dimage(QImage image);
      void printToLog(QString text);
+     void on_saveImageButton_clicked(bool check);
+     void on_boxesCheckbox_clicked(bool check);
+     void on_framesCheckbox_clicked(bool check);
+     void on_runningCheckBox_clicked(bool check);
+     void on_colorCheckBox_clicked(bool check);
+     void on_undistortCheckBox_clicked(bool check);
+     void on_bruteforceCheckBox_clicked(bool check);
+     void on_updateSettingsPushButton_clicked(bool check);
+     void on_imageToDetectButton_clicked(bool check);
+     void on_planTrajPushButton_clicked(bool check);
+     void on_moveManipPushButton_clicked(bool check);
+     void on_homeManipPushButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);
      void subscribeTo2DobjectDetected(QString topic);
+     void setProcessImageRunning(bool processRunning);
+     void setProcessImageColor(bool color);
+     void setProcessImageUndistort(bool undistort);
+     void setProcessImageBruteforce(bool bruteforce);
+     void setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor);
+     void setProcessImageMatchingPicture(std::string imagePath);
+     void move_ag1(double x, double y, double z,
+                   double roll, double pitch, double yaw);
+     void move_ag2(double x, double y, double z,
+                   double roll, double pitch, double yaw);
+     void plan_ag1(double x, double y, double z,
+                   double roll, double pitch, double yaw);
+     void plan_ag2(double x, double y, double z,
+                   double roll, double pitch, double yaw);
 
 private:
 	Ui::MainWindowDesign ui;
@@ -69,8 +94,10 @@ private:
     std::vector<ModelLoader*> models;
     QStringList objects;
     bool runStream;
+    QImage saveImage;
     Eigen::Affine3f frameA,frameB,tag,worldFrame,camera;
     Eigen::Matrix4f cameraToTag, world, tagToCamera, worldToTag, partAInTag, partBInTag, tempWorld, tagToWorld;
+    double homeX, homeY1, homeY2, homeZ, homeRoll, homePitch, homeYaw;
 };
 
 }  // namespace agilus_master_project

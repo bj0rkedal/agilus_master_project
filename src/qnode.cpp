@@ -44,6 +44,23 @@ bool QNode::init() {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
+    setImageprocessorRunning = n.serviceClient<image_processor::setProcessRunning>("/object_2D_detection/setProcessRunning");
+    setImageprocessorColor = n.serviceClient<image_processor::setVideoColor>("/object_2D_detection/setVideoColor");
+    setImageprocessorUndistort = n.serviceClient<image_processor::setVideoUndistortion>("/object_2D_detection/setVideoUndistortion");
+    setImageprocessorBruteforce = n.serviceClient<image_processor::setBruteforceMatching>("/object_2D_detection/setBruteforceMatching");
+    setImageprocessorKeypoint = n.serviceClient<image_processor::setKeypointDetectorType>("/object_2D_detection/setKeypointDetectorType");
+    setImageprocessorDescriptor = n.serviceClient<image_processor::setDescriptorType>("/object_2D_detection/setDescriptorType");
+    setImageprocessorMatchingImage = n.serviceClient<image_processor::setMatchingImage1>("object_2D_detection/setMatchingImage1");
+
+    goToClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/go_to_pose");
+    goToClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/go_to_pose");
+    planClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/plan_pose");
+    planClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/plan_pose");
+
+    plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
+    plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
+    plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
+    plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
 
 	start();
 	return true;
@@ -74,7 +91,67 @@ void QNode::subscribeTo2DobjectDetected(QString topic)
     object2DdetectedSub = n.subscribe<sensor_msgs::Image, QNode>(tmp, 1, &QNode::object2DCallback,this);
 }
 
+void QNode::setProcessImageRunning(bool processRunning)
+{
+    setImproRunning.request.running = processRunning;
+    setImageprocessorRunning.call(setImproRunning);
+}
 
+void QNode::setProcessImageColor(bool color)
+{
+    setVideoColor.request.color = color;
+    setImageprocessorColor.call(setVideoColor);
+}
+
+void QNode::setProcessImageUndistort(bool undistort)
+{
+    setVideoUndist.request.undistort = undistort;
+    setImageprocessorUndistort.call(setVideoUndist);
+}
+
+void QNode::setProcessImageBruteforce(bool bruteforce)
+{
+    setBF.request.bruteforce = bruteforce;
+    setImageprocessorBruteforce.call(setBF);
+}
+
+void QNode::setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor)
+{
+    setKeypoint.request.type = keypoint;
+    setDescriptor.request.type = descriptor;
+    setImageprocessorKeypoint.call(setKeypoint);
+    setImageprocessorDescriptor.call(setDescriptor);
+}
+
+void QNode::setProcessImageMatchingPicture(std::string imagePath)
+{
+    setMatchingImage.request.imagePath = imagePath;
+    setImageprocessorMatchingImage.call(setMatchingImage);
+}
+
+void QNode::move_ag1(double x, double y, double z, double roll, double pitch, double yaw)
+{
+    setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
+    goToClient_ag1.call(pose_service);
+}
+
+void QNode::move_ag2(double x, double y, double z, double roll, double pitch, double yaw)
+{
+    setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
+    goToClient_ag2.call(pose_service);
+}
+
+void QNode::plan_ag1(double x, double y, double z, double roll, double pitch, double yaw)
+{
+    setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
+    planClient_ag1.call(pose_service);
+}
+
+void QNode::plan_ag2(double x, double y, double z, double roll, double pitch, double yaw)
+{
+    setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
+    planClient_ag2.call(pose_service);
+}
 
 void QNode::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
     // Convert ROS message (PointCloud2) to PCL point cloud (PointCloud(PointXYZ))
@@ -84,14 +161,11 @@ void QNode::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
 
 void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image)
 {
-    cv_bridge::CvImagePtr cv_ptr;
-
     // Early return if we are still reading the image
     if(imageReading){
-        std::cout << "Not done" << std::endl;
         return;
     }
-
+    cv_bridge::CvImagePtr cv_ptr;
 
     try
     {
@@ -103,12 +177,105 @@ void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image)
         return;
     }
 
-    std::cout << "Got image" << std::endl;
-
     // Emitting update image, remember to set the flag
     setImageReading(true);
-    image2d = cv_ptr->image;
-    Q_EMIT update2Dimage(image2d);
+    Q_EMIT update2Dimage(mat2qimage(cv_ptr->image));
+}
+
+QImage QNode::mat2qimage(cv::Mat& mat) {
+    switch (mat.type()) {
+        // 8-bit, 4 channel
+        case CV_8UC4: {
+            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
+            return image;
+        }
+
+        // 8-bit, 3 channel
+        case CV_8UC3: {
+            const uchar *qImageBuffer = (const uchar*)mat.data;
+            QImage image(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+            return image.rgbSwapped();
+        }
+
+        // 8-bit, 1 channel
+        case CV_8UC1: {
+            static QVector<QRgb>  sColorTable;
+
+            // only create our color table once
+            if (sColorTable.isEmpty()) {
+                for (int i = 0; i < 256; ++i)
+                    sColorTable.push_back(qRgb(i, i, i));
+            }
+
+            QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
+            image.setColorTable(sColorTable);
+
+            return image;
+        }
+
+        default:
+            std::cout << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << mat.type();
+            break;
+    }
+
+    return QImage();
+}
+
+std::string QNode::type2str(int type) {
+    std::string r;
+
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+    switch (depth) {
+        case CV_8U:
+            r = "8U";
+            break;
+        case CV_8S:
+            r = "8S";
+            break;
+        case CV_16U:
+            r = "16U";
+            break;
+        case CV_16S:
+            r = "16S";
+            break;
+        case CV_32S:
+            r = "32S";
+            break;
+        case CV_32F:
+            r = "32F";
+            break;
+        case CV_64F:
+            r = "64F";
+            break;
+        default:
+            r = "User";
+            break;
+    }
+
+    r += "C";
+    r += (chans + '0');
+
+    // USAGE
+    //    std::string ty =  type2str( H.type() );
+    //    printf("Matrix: %s %dx%d \n", ty.c_str(), H.cols, H.rows );
+
+    return r;
+}
+
+void QNode::setPoseRequest(bool relative, bool position, double x, double y, double z, bool orientation, double roll, double pitch, double yaw)
+{
+    pose_service.request.header.frame_id = "/world";
+    pose_service.request.relative = relative;
+    pose_service.request.set_position = position;
+    pose_service.request.position_x = x;
+    pose_service.request.position_y = y;
+    pose_service.request.position_z = z;
+    pose_service.request.set_orientation = orientation;
+    pose_service.request.orientation_r = roll;
+    pose_service.request.orientation_p = pitch;
+    pose_service.request.orientation_y = yaw;
 }
 
 bool QNode::getImageReading()
