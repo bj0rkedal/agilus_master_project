@@ -17,6 +17,7 @@
 *****************************************************************************/
 
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <string>
 #include <QThread>
 #include <QStringListModel>
@@ -28,6 +29,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <geometry_msgs/Pose2D.h>
 #include <boost/atomic.hpp>
 
 #include <opencv2/core.hpp>
@@ -70,6 +72,7 @@ public:
 	QStringListModel* loggingModel() { return &logging_model; }
     void cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg);
     void object2DCallback(const sensor_msgs::ImageConstPtr &image);
+    void object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg);
     bool getImageReading();
     void setImageReading(bool reading);
     QImage mat2qimage(cv::Mat& mat);
@@ -78,6 +81,9 @@ public:
                         double x, double y, double z,
                         bool orientation, double roll, double pitch,
                         double yaw);
+    std::vector<double> getObject2DPose(double lambda);
+    cv::Mat getCameraMatrix(std::string path);
+    Eigen::Vector3d getNormImageCoords(double x, double y, double lambda, cv::Mat camera_matrix);
 
 public Q_SLOTS:
     void subscribeToPointCloud2(QString topic);
@@ -110,8 +116,11 @@ private:
     QStringListModel logging_model;
     ros::Subscriber pointCloud2Sub;
     ros::Subscriber object2DdetectedSub;
+    ros::Subscriber object2Dpose;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     boost::atomic_bool imageReading;
+
+    std::string CAMERA_MATRIX;
 
     // Image processor
     ros::ServiceClient getImageprocessorRunning;
@@ -148,6 +157,9 @@ private:
     ros::ServiceClient planClient_ag1;
     ros::ServiceClient planClient_ag2;
     agilus_planner::Pose pose_service;
+
+    double x_object, y_object;
+    cv::Mat camera_matrix;
 };
 
 }  // namespace agilus_master_project

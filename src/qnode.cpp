@@ -57,6 +57,8 @@ bool QNode::init() {
     planClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/plan_pose");
     planClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/plan_pose");
 
+    object2Dpose = n.subscribe<geometry_msgs::Pose2D,QNode>("/object_2D_detected/object1", 1000, &QNode::object2DPoseCallback,this);
+
     plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
     plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
     plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
@@ -182,6 +184,12 @@ void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image)
     Q_EMIT update2Dimage(mat2qimage(cv_ptr->image));
 }
 
+void QNode::object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg)
+{
+    x_object = msg->x;
+    y_object = msg->y;
+}
+
 QImage QNode::mat2qimage(cv::Mat& mat) {
     switch (mat.type()) {
         // 8-bit, 4 channel
@@ -276,6 +284,46 @@ void QNode::setPoseRequest(bool relative, bool position, double x, double y, dou
     pose_service.request.orientation_r = roll;
     pose_service.request.orientation_p = pitch;
     pose_service.request.orientation_y = yaw;
+}
+
+std::vector<double> QNode::getObject2DPose(double lambda)
+{
+    Eigen::Vector3d imageCoords = getNormImageCoords(x_object, y_object, lambda, camera_matrix);
+    std::vector<double> returnvalue;
+    returnvalue.push_back(imageCoords(0));
+    returnvalue.push_back(imageCoords(1));
+    return (returnvalue);
+}
+
+cv::Mat QNode::getCameraMatrix(std::string path)
+{
+    cv::Mat temp;
+    cv::FileStorage fs(path, cv::FileStorage::READ);
+    fs["camera_matrix"] >> temp;
+    fs.release();
+
+    return temp;
+}
+
+Eigen::Vector3d QNode::getNormImageCoords(double x, double y, double lambda, cv::Mat camera_matrix)
+{
+    Eigen::Vector3d pixelCoords;
+    Eigen::Vector3d normCoords;
+    Eigen::Matrix3d camMat;
+
+    camMat << camera_matrix.at<double>(0,0),0,camera_matrix.at<double>(0,2),
+              0,camera_matrix.at<double>(1,1),camera_matrix.at<double>(1,2),
+              0,0,1;
+
+    pixelCoords(0) = x;
+    pixelCoords(1) = y;
+    pixelCoords(2) = 1;
+
+    Eigen::Matrix3d icamMat = camMat.inverse();
+
+    normCoords = icamMat*pixelCoords;
+
+    return lambda*normCoords;
 }
 
 bool QNode::getImageReading()

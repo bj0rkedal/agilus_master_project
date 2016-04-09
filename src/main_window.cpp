@@ -163,8 +163,9 @@ void MainWindow::init()
             QString tmp = QString::fromUtf8(info.name.c_str());
             if(tmp.endsWith("image_color")){
                 list2.append(QString::fromUtf8(info.name.c_str()));
+            } else if(tmp.endsWith("image")){
+                list2.append(QString::fromUtf8(info.name.c_str()));
             }
-
         }
     }
     ui.topicComboBox2->addItems(list2);

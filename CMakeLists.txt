@@ -14,7 +14,9 @@ find_package(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 set  (VTK_LIBRARIES   vtkRendering vtkGraphics vtkHybrid QVTK)
 find_package(catkin REQUIRED COMPONENTS qt_build roscpp pcl_conversions pcl_ros cv_bridge image_transport)
+find_package(OpenCV 3.1.0 EXACT REQUIRED)
 include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${OpenCV_INCLUDE_DIRS})
 # Use this to define what the package will export (e.g. libs, headers).
 # Since the default here is to produce only a binary, we don't worry about
 # exporting anything. 
@@ -51,6 +53,6 @@ file(GLOB_RECURSE QT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINK
 ##############################################################################
 
 add_executable(agilus_master_project ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
-target_link_libraries(agilus_master_project ${QT_LIBRARIES} ${catkin_LIBRARIES} ${VTK_LIBRARIES} yaml-cpp)
+target_link_libraries(agilus_master_project ${QT_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${VTK_LIBRARIES} yaml-cpp)
 install(TARGETS agilus_master_project RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
