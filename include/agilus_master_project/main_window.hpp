@@ -61,6 +61,8 @@ public Q_SLOTS:
      void on_planTrajPushButton_clicked(bool check);
      void on_moveManipPushButton_clicked(bool check);
      void on_homeManipPushButton_clicked(bool check);
+     void on_testPlanButton_clicked(bool check);
+     void on_testMoveButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);

@@ -87,11 +87,11 @@ void MainWindow::init()
     runStream = false;
 
     box = new ModelLoader("nuc-42-100");
-    //box->populateLoader();
+    box->populateLoader();
     cone = new ModelLoader("cone-42-200");
-    //cone->populateLoader();
+    cone->populateLoader();
     freak = new ModelLoader("freakthing-42-200");
-    //freak->populateLoader();
+    freak->populateLoader();
     models.push_back(box);
     models.push_back(cone);
     models.push_back(freak);
@@ -131,6 +131,9 @@ void MainWindow::init()
     objects.append("freak thing");
     ui.objectsListA->addItems(objects);
     ui.objectsListB->addItems(objects);
+
+    ui.testPlanButton->setEnabled(false);
+    ui.testMoveButton->setEnabled(false);
 
 
     QStringList list, list2;
@@ -361,6 +364,14 @@ void MainWindow::on_homeManipPushButton_clicked(bool check)
     ui.yawDoubleSpinBox->setValue(0.0);
 }
 
+void MainWindow::on_testPlanButton_clicked(bool check){
+    Q_EMIT plan_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,0,0);
+}
+
+void MainWindow::on_testMoveButton_clicked(bool check){
+    Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,0,0);
+}
+
 void MainWindow::on_loadPCDButton_clicked(bool check)
 {
     runStream = false;
@@ -405,27 +416,40 @@ void MainWindow::on_subscribeToTopicButton2_clicked(bool check)
 void MainWindow::on_detectObjectsButton_clicked(bool check)
 {
     //detect objects here
-
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr detected(new pcl::PointCloud<pcl::PointXYZRGB>);
-    //detected = filters->object_detection(currentCloud,box->getModels(),box->getModels());
     icpResult objectDetectionResult = filters->object_detection(currentCloud,models.at(ui.objectsListA->currentIndex())->getModels(),models.at(ui.objectsListB->currentIndex())->getModels());
     displayNewPointCloud(filters->visualize_rgb(objectDetectionResult.cloud));
-
 
     frameA = objectDetectionResult.partAFinal;
     frameB = objectDetectionResult.partBFinal;
 
-
-
-    partAInTag = world * tagToCamera * objectDetectionResult.partAFinal;
-    partBInTag = world * tagToCamera * objectDetectionResult.partBFinal;
+    partAInTag = world * worldToTag * tagToCamera * objectDetectionResult.partAFinal;
+    partBInTag = world * worldToTag * tagToCamera * objectDetectionResult.partBFinal;
 
     viewer1->addCoordinateSystem(0.2,frameA);
     viewer1->addCoordinateSystem(0.2,frameB);
 
+    QString partA = "X: ";
+    partA.append(QString::number(partAInTag(0,3)));
+    partA.append(", Y: ");
+    partA.append(QString::number(partAInTag(1,3)));
+    partA.append(", Z: ");
+    partA.append(QString::number(partAInTag(2,3)));
 
-    std::cout << "part a in world: " << std::endl << partAInTag << std::endl;
-    std::cout << "part b in world: " << std::endl << partBInTag << std::endl;
+    QString partB = "X: ";
+    partB.append(QString::number(partBInTag(0,3)));
+    partB.append(", Y: ");
+    partB.append(QString::number(partBInTag(1,3)));
+    partB.append(", Z: ");
+    partB.append(QString::number(partBInTag(2,3)));
+
+    printToLog("Position of part a in world:");
+    printToLog(partA);
+    printToLog("Position of part b in world");
+    printToLog(partB);
+
+    ui.testPlanButton->setEnabled(true);
+    ui.testMoveButton->setEnabled(true);
 }
 
 }  // namespace agilus_master_project
