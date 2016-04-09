@@ -160,7 +160,11 @@ void MainWindow::init()
 
         // Add more types if needed
         if(QString::compare(tmp, "sensor_msgs/Image", Qt::CaseInsensitive) == 0){
-            list2.append(QString::fromUtf8(info.name.c_str()));
+            QString tmp = QString::fromUtf8(info.name.c_str());
+            if(tmp.endsWith("image_color")){
+                list2.append(QString::fromUtf8(info.name.c_str()));
+            }
+
         }
     }
     ui.topicComboBox2->addItems(list2);

@@ -232,16 +232,16 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclFilters::cluster_extraction(
     seg.setDistanceThreshold (distance);
     int i=0, nr_points = (int) incloud->points.size ();
 
-    while (incloud->points.size () > 0.3 * nr_points)
-    {
+//    while (incloud->points.size () > 0.3 * nr_points)
+//    {
         // Segment the largest planar component from the remaining cloud
         seg.setInputCloud (incloud);
         seg.segment (*inliers, *coefficients);
-        if (inliers->indices.size () == 0)
-        {
-            std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
-            break;
-        }
+//        if (inliers->indices.size () == 0)
+//        {
+//            std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+//            break;
+//        }
 
         // Extract the planar inliers from the input cloud
         pcl::ExtractIndices<pcl::PointXYZ> extract;
@@ -256,7 +256,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclFilters::cluster_extraction(
         extract.setNegative (true);
         extract.filter (*cloud_f);
         *incloud = *cloud_f;
-    }
+//    }
 
     // Creating the KdTree object for the search method of the extraction
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -265,7 +265,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclFilters::cluster_extraction(
     std::vector<pcl::PointIndices> cluster_indices;
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
     ec.setClusterTolerance (0.01); // 2cm
-    ec.setMinClusterSize (200);
+    ec.setMinClusterSize (300);
     ec.setMaxClusterSize (25000);
     ec.setSearchMethod (tree);
     ec.setInputCloud (incloud);
@@ -467,21 +467,15 @@ pcl::PointCloud<pcl::VFHSignature308>::Ptr PclFilters::calculate_ourcvfh_descrip
     pcl::OURCVFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> ourcvfh;
 
     ourcvfh.setInputCloud(cloud);
-
     ourcvfh.setInputNormals(normal);
-
     ourcvfh.setSearchMethod(kdtree);
-
     ourcvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); // 5 degrees.
-
     ourcvfh.setCurvatureThreshold(0.1);
-
     ourcvfh.setNormalizeBins(false);
 
     // Set the minimum axis ratio between the SGURF axes. At the disambiguation phase,
     // this will decide if additional Reference Frames need to be created, if ambiguous.
     ourcvfh.setAxisRatio(0.8);
-
     ourcvfh.compute(*descriptors);
 
     return (descriptors);
