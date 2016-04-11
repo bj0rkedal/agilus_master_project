@@ -286,44 +286,14 @@ void QNode::setPoseRequest(bool relative, bool position, double x, double y, dou
     pose_service.request.orientation_y = yaw;
 }
 
-std::vector<double> QNode::getObject2DPose(double lambda)
+double QNode::getXoffset()
 {
-    Eigen::Vector3d imageCoords = getNormImageCoords(x_object, y_object, lambda, camera_matrix);
-    std::vector<double> returnvalue;
-    returnvalue.push_back(imageCoords(0));
-    returnvalue.push_back(imageCoords(1));
-    return (returnvalue);
+    return x_object;
 }
 
-cv::Mat QNode::getCameraMatrix(std::string path)
+double QNode::getYoffset()
 {
-    cv::Mat temp;
-    cv::FileStorage fs(path, cv::FileStorage::READ);
-    fs["camera_matrix"] >> temp;
-    fs.release();
-
-    return temp;
-}
-
-Eigen::Vector3d QNode::getNormImageCoords(double x, double y, double lambda, cv::Mat camera_matrix)
-{
-    Eigen::Vector3d pixelCoords;
-    Eigen::Vector3d normCoords;
-    Eigen::Matrix3d camMat;
-
-    camMat << camera_matrix.at<double>(0,0),0,camera_matrix.at<double>(0,2),
-              0,camera_matrix.at<double>(1,1),camera_matrix.at<double>(1,2),
-              0,0,1;
-
-    pixelCoords(0) = x;
-    pixelCoords(1) = y;
-    pixelCoords(2) = 1;
-
-    Eigen::Matrix3d icamMat = camMat.inverse();
-
-    normCoords = icamMat*pixelCoords;
-
-    return lambda*normCoords;
+    return y_object;
 }
 
 bool QNode::getImageReading()

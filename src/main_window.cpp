@@ -370,11 +370,21 @@ void MainWindow::on_homeManipPushButton_clicked(bool check)
 }
 
 void MainWindow::on_testPlanButton_clicked(bool check){
-    Q_EMIT plan_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,0,0);
+    Q_EMIT plan_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,0);
 }
 
 void MainWindow::on_testMoveButton_clicked(bool check){
-    Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,0,0);
+    Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,0);
+}
+
+void MainWindow::on_plan2DcorrButton_clicked(bool check)
+{
+    Q_EMIT plan_ag2(partAInTag(0,3)-qnode.getYoffset(),partAInTag(1,3)-qnode.getXoffset(),1.5,0,3.1415,0);
+}
+
+void MainWindow::on_move2DcorrButton_clicked(bool check)
+{
+    Q_EMIT move_ag2(partAInTag(0,3)-qnode.getYoffset(),partAInTag(1,3)-qnode.getXoffset(),1.5,0,3.1415,0);
 }
 
 void MainWindow::on_loadPCDButton_clicked(bool check)
