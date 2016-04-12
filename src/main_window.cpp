@@ -371,21 +371,27 @@ void MainWindow::on_homeManipPushButton_clicked(bool check)
 }
 
 void MainWindow::on_testPlanButton_clicked(bool check){
-    Q_EMIT plan_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,0);
+    Q_EMIT plan_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,(-23.5)*(M_PI/180.0));
 }
 
 void MainWindow::on_testMoveButton_clicked(bool check){
-    Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,0);
+    Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.5,0,3.1415,(-23.5)*(M_PI/180.0));
 }
 
 void MainWindow::on_plan2DcorrButton_clicked(bool check)
 {
-    Q_EMIT plan_ag2(partAInTag(0,3)-qnode.getYoffset(),partAInTag(1,3)-qnode.getXoffset(),1.5,0,3.1415,0);
+    double correctionY = partAInTag(0,3)-qnode.getYoffset();
+    double correctionX = partAInTag(1,3)-qnode.getXoffset();
+    Q_EMIT plan_ag2(correctionY,correctionX,1.5,0,3.1415,(-23.5)*(M_PI/180.0));
 }
 
 void MainWindow::on_move2DcorrButton_clicked(bool check)
 {
-    Q_EMIT move_ag2(partAInTag(0,3)-qnode.getYoffset(),partAInTag(1,3)-qnode.getXoffset(),1.5,0,3.1415,0);
+    double correctionY = partAInTag(0,3)-qnode.getYoffset();
+    double correctionX = partAInTag(1,3)-qnode.getXoffset();
+    Q_EMIT move_ag2(correctionY,correctionX,1.5,0,3.1415,(-23.5)*(M_PI/180.0));
+    partAInTag(0,3) = correctionY;
+    partAInTag(1,3) = correctionX;
 }
 
 void MainWindow::on_setDepthPushButton_clicked(bool check)
