@@ -65,6 +65,7 @@ public Q_SLOTS:
      void on_testMoveButton_clicked(bool check);
      void on_plan2DcorrButton_clicked(bool check);
      void on_move2DcorrButton_clicked(bool check);
+     void on_setDepthPushButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);
@@ -75,6 +76,7 @@ Q_SIGNALS:
      void setProcessImageBruteforce(bool bruteforce);
      void setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor);
      void setProcessImageMatchingPicture(std::string imagePath);
+     void setProcessImageDepthLambda(double lambda);
      void move_ag1(double x, double y, double z,
                    double roll, double pitch, double yaw);
      void move_ag2(double x, double y, double z,

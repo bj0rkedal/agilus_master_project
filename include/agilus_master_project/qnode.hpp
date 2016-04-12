@@ -44,6 +44,7 @@
 #include <image_processor/getDescriptorType.h>
 #include <image_processor/setDescriptorType.h>
 #include <image_processor/setMatchingImage1.h>
+#include <image_processor/setImageDepth.h>
 
 #include <agilus_planner/Pose.h>
 
@@ -89,6 +90,7 @@ public Q_SLOTS:
     void setProcessImageBruteforce(bool bruteforce);
     void setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor);
     void setProcessImageMatchingPicture(std::string imagePath);
+    void setProcessImageDepthLambda(double lambda);
     void move_ag1(double x, double y, double z,
                   double roll, double pitch, double yaw);
     void move_ag2(double x, double y, double z,
@@ -129,6 +131,7 @@ private:
     ros::ServiceClient getImageprocessorDescriptor;
     ros::ServiceClient setImageprocessorDescriptor;
     ros::ServiceClient setImageprocessorMatchingImage;
+    ros::ServiceClient setImageprocessorDepth;
 
     image_processor::getProcessRunning getImproRunning;
     image_processor::setProcessRunning setImproRunning;
@@ -143,6 +146,7 @@ private:
     image_processor::getDescriptorType getDescriptor;
     image_processor::setDescriptorType setDescriptor;
     image_processor::setMatchingImage1 setMatchingImage;
+    image_processor::setImageDepth setImageDepth;
 
     // Robot control
     ros::ServiceClient goToClient_ag1;

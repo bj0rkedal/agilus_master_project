@@ -50,7 +50,8 @@ bool QNode::init() {
     setImageprocessorBruteforce = n.serviceClient<image_processor::setBruteforceMatching>("/object_2D_detection/setBruteforceMatching");
     setImageprocessorKeypoint = n.serviceClient<image_processor::setKeypointDetectorType>("/object_2D_detection/setKeypointDetectorType");
     setImageprocessorDescriptor = n.serviceClient<image_processor::setDescriptorType>("/object_2D_detection/setDescriptorType");
-    setImageprocessorMatchingImage = n.serviceClient<image_processor::setMatchingImage1>("object_2D_detection/setMatchingImage1");
+    setImageprocessorMatchingImage = n.serviceClient<image_processor::setMatchingImage1>("/object_2D_detection/setMatchingImage1");
+    setImageprocessorDepth = n.serviceClient<image_processor::setImageDepth>("/object_2D_detection/setImageDepth");
 
     goToClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/go_to_pose");
     goToClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/go_to_pose");
@@ -129,6 +130,12 @@ void QNode::setProcessImageMatchingPicture(std::string imagePath)
 {
     setMatchingImage.request.imagePath = imagePath;
     setImageprocessorMatchingImage.call(setMatchingImage);
+}
+
+void QNode::setProcessImageDepthLambda(double lambda)
+{
+    setImageDepth.request.lambda = lambda;
+    setImageprocessorDepth.call(setImageDepth);
 }
 
 void QNode::move_ag1(double x, double y, double z, double roll, double pitch, double yaw)

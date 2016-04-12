@@ -42,6 +42,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(this,SIGNAL(plan_ag2(double,double,double,double,double,double)),&qnode,SLOT(plan_ag2(double,double,double,double,double,double)));
     QObject::connect(this,SIGNAL(move_ag1(double,double,double,double,double,double)),&qnode,SLOT(move_ag1(double,double,double,double,double,double)));
     QObject::connect(this,SIGNAL(move_ag2(double,double,double,double,double,double)),&qnode,SLOT(move_ag2(double,double,double,double,double,double)));
+    QObject::connect(this,SIGNAL(setProcessImageDepthLambda(double)),&qnode,SLOT(setProcessImageDepthLambda(double)));
     init();
     init_descriptor_keypoint_combobox();
     initRobotUI();
@@ -385,6 +386,11 @@ void MainWindow::on_plan2DcorrButton_clicked(bool check)
 void MainWindow::on_move2DcorrButton_clicked(bool check)
 {
     Q_EMIT move_ag2(partAInTag(0,3)-qnode.getYoffset(),partAInTag(1,3)-qnode.getXoffset(),1.5,0,3.1415,0);
+}
+
+void MainWindow::on_setDepthPushButton_clicked(bool check)
+{
+    Q_EMIT setProcessImageDepthLambda(ui.lambdaDoubleSpinBox->value());
 }
 
 void MainWindow::on_loadPCDButton_clicked(bool check)
