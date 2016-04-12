@@ -43,6 +43,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(this,SIGNAL(move_ag1(double,double,double,double,double,double)),&qnode,SLOT(move_ag1(double,double,double,double,double,double)));
     QObject::connect(this,SIGNAL(move_ag2(double,double,double,double,double,double)),&qnode,SLOT(move_ag2(double,double,double,double,double,double)));
     QObject::connect(this,SIGNAL(setProcessImageDepthLambda(double)),&qnode,SLOT(setProcessImageDepthLambda(double)));
+    QObject::connect(this,SIGNAL(closeAG1Gripper()),&qnode,SLOT(closeAG1Gripper()));
+    QObject::connect(this,SIGNAL(openAG1Gripper()),&qnode,SLOT(openAG1Gripper()));
     init();
     init_descriptor_keypoint_combobox();
     initRobotUI();
@@ -397,6 +399,20 @@ void MainWindow::on_move2DcorrButton_clicked(bool check)
 void MainWindow::on_setDepthPushButton_clicked(bool check)
 {
     Q_EMIT setProcessImageDepthLambda(ui.lambdaDoubleSpinBox->value());
+}
+
+void MainWindow::on_openGripperButton_clicked(bool check)
+{
+    if(ui.robotComboBox->currentIndex()==0) {
+        Q_EMIT openAG1Gripper();
+    }
+}
+
+void MainWindow::on_closeGripperButton_clicked(bool check)
+{
+    if(ui.robotComboBox->currentIndex()==0) {
+        Q_EMIT closeAG1Gripper();
+    }
 }
 
 void MainWindow::on_loadPCDButton_clicked(bool check)

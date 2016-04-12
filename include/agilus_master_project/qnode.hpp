@@ -46,6 +46,8 @@
 #include <image_processor/setMatchingImage1.h>
 #include <image_processor/setImageDepth.h>
 
+#include <kuka_rsi_hw_interface/write_8_outputs.h>
+
 #include <agilus_planner/Pose.h>
 
 /*****************************************************************************
@@ -99,6 +101,8 @@ public Q_SLOTS:
                   double roll, double pitch, double yaw);
     void plan_ag2(double x, double y, double z,
                   double roll, double pitch, double yaw);
+    void closeAG1Gripper();
+    void openAG1Gripper();
 
 Q_SIGNALS:
 	void loggingUpdated();
@@ -153,9 +157,11 @@ private:
     ros::ServiceClient goToClient_ag2;
     ros::ServiceClient planClient_ag1;
     ros::ServiceClient planClient_ag2;
+    ros::ServiceClient setAgilusDigout;
     agilus_planner::Pose pose_service;
+    kuka_rsi_hw_interface::write_8_outputs agilusDigout;
 
-    double x_object, y_object;
+    double x_object, y_object, theta_object;
     //cv::Mat camera_matrix;
 
 };

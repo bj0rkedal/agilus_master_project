@@ -66,6 +66,8 @@ public Q_SLOTS:
      void on_plan2DcorrButton_clicked(bool check);
      void on_move2DcorrButton_clicked(bool check);
      void on_setDepthPushButton_clicked(bool check);
+     void on_openGripperButton_clicked(bool check);
+     void on_closeGripperButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);
@@ -85,6 +87,8 @@ Q_SIGNALS:
                    double roll, double pitch, double yaw);
      void plan_ag2(double x, double y, double z,
                    double roll, double pitch, double yaw);
+     void closeAG1Gripper();
+     void openAG1Gripper();
 
 private:
 	Ui::MainWindowDesign ui;

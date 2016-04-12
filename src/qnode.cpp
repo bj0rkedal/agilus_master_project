@@ -162,6 +162,32 @@ void QNode::plan_ag2(double x, double y, double z, double roll, double pitch, do
     planClient_ag2.call(pose_service);
 }
 
+void QNode::closeAG1Gripper()
+{
+    agilusDigout.request.out1 = true;
+    agilusDigout.request.out2 = true;
+    agilusDigout.request.out3 = false;
+    agilusDigout.request.out4 = false;
+    agilusDigout.request.out5 = false;
+    agilusDigout.request.out6 = false;
+    agilusDigout.request.out7 = false;
+    agilusDigout.request.out8 = false;
+    setAgilusDigout.call(agilusDigout);
+}
+
+void QNode::openAG1Gripper()
+{
+    agilusDigout.request.out1 = false;
+    agilusDigout.request.out2 = true;
+    agilusDigout.request.out3 = false;
+    agilusDigout.request.out4 = true;
+    agilusDigout.request.out5 = false;
+    agilusDigout.request.out6 = false;
+    agilusDigout.request.out7 = false;
+    agilusDigout.request.out8 = false;
+    setAgilusDigout.call(agilusDigout);
+}
+
 void QNode::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
     // Convert ROS message (PointCloud2) to PCL point cloud (PointCloud(PointXYZ))
     pcl::fromROSMsg(*cloud_msg, *cloud);
@@ -195,6 +221,7 @@ void QNode::object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg)
 {
     x_object = msg->x;
     y_object = msg->y;
+    theta_object = msg->theta;
 }
 
 QImage QNode::mat2qimage(cv::Mat& mat) {
