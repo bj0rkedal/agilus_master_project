@@ -491,9 +491,12 @@ void MainWindow::on_autoDetection3dButton_clicked(bool check)
 void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
 {
     if(!movedToPartA) {
+	Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
+	std::cout << "first run, positioning camera over part A" << std::endl;
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageMatchingPicture(partApath);
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+	std::cout << "Camera is now positioned over part A" << std::endl;
         movedToPartA = true;
     } else {
         double correctionY = partAInTag(0,3)-qnode.getYoffset();
@@ -515,10 +518,13 @@ void MainWindow::on_auto2dFirstPartAngleButton_clicked(bool check)
 void MainWindow::on_auto2dSecondPartButton_clicked(bool check)
 {
     if(!movedToPartB) {
-        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
-        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+	Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
+	std::cout << "First run, positioning camera over part B" << std::endl;
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageMatchingPicture(partBpath);
         Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
+	std::cout << "Camera is now positioned over part B" << std::endl;
         movedToPartB = true;
     } else {
         double correctionY = partBInTag(0,3)-qnode.getYoffset();
@@ -539,8 +545,8 @@ void MainWindow::on_auto2dSecondPartAngleButton_clicked(bool check)
 
 void MainWindow::on_moveGripperPartAButton_clicked(bool check)
 {
-    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch,homeYaw);
-    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
 
     QString partA = "X: ";
     partA.append(QString::number(partAInTag(0,3)));
@@ -555,8 +561,8 @@ void MainWindow::on_moveGripperPartAButton_clicked(bool check)
 
 void MainWindow::on_moveGripperPartBButton_clicked(bool check)
 {
-    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch,homeYaw);
-    Q_EMIT move_ag1(partBInTag(0,3),partBInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
+    Q_EMIT move_ag1(partBInTag(0,3),partBInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
 
     QString partB = "X: ";
     partB.append(QString::number(partBInTag(0,3)));
