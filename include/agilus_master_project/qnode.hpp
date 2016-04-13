@@ -157,12 +157,11 @@ private:
     ros::ServiceClient goToClient_ag2;
     ros::ServiceClient planClient_ag1;
     ros::ServiceClient planClient_ag2;
-    ros::ServiceClient setAgilusDigout;
+    ros::ServiceClient setAgilus1Digout;
     agilus_planner::Pose pose_service;
     kuka_rsi_hw_interface::write_8_outputs agilusDigout;
 
     double x_object, y_object, theta_object;
-    //cv::Mat camera_matrix;
 
 };
 

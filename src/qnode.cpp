@@ -58,6 +58,8 @@ bool QNode::init() {
     planClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/plan_pose");
     planClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/plan_pose");
 
+    setAgilus1Digout = n.serviceClient<kuka_rsi_hw_interface::write_8_outputs>("/ag1/kuka_hardware_interface/write_8_outputs");
+
     object2Dpose = n.subscribe<geometry_msgs::Pose2D,QNode>("/object_2D_detected/object1", 1000, &QNode::object2DPoseCallback,this);
 
     plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
@@ -172,7 +174,7 @@ void QNode::closeAG1Gripper()
     agilusDigout.request.out6 = false;
     agilusDigout.request.out7 = false;
     agilusDigout.request.out8 = false;
-    setAgilusDigout.call(agilusDigout);
+    setAgilus1Digout.call(agilusDigout);
 }
 
 void QNode::openAG1Gripper()
@@ -185,7 +187,7 @@ void QNode::openAG1Gripper()
     agilusDigout.request.out6 = false;
     agilusDigout.request.out7 = false;
     agilusDigout.request.out8 = false;
-    setAgilusDigout.call(agilusDigout);
+    setAgilus1Digout.call(agilusDigout);
 }
 
 void QNode::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
