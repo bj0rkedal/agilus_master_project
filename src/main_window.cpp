@@ -393,40 +393,74 @@ void MainWindow::on_imageToDetectButton_clicked(bool check)
 void MainWindow::on_planTrajPushButton_clicked(bool check)
 {
     if(ui.robotComboBox->currentIndex()==0) {
-        Q_EMIT plan_ag1(ui.xPosDoubleSpinBox->value()+homeX,
-                        ui.yPosDoubleSpinBox->value()+homeY1,
-                        ui.zPosDoubleSpinBox->value()+homeZ,
-                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
-
+        if(ui.worldCoordinatesCheckBox->isChecked()) {
+            Q_EMIT plan_ag1(ui.xPosDoubleSpinBox->value(),
+                            ui.yPosDoubleSpinBox->value(),
+                            ui.zPosDoubleSpinBox->value(),
+                            ui.rollDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.pitchDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.yawDoubleSpinBox->value()*(M_PI/180.0));
+        } else {
+            Q_EMIT plan_ag1(ui.xPosDoubleSpinBox->value()+homeX,
+                            ui.yPosDoubleSpinBox->value()+homeY1,
+                            ui.zPosDoubleSpinBox->value()+homeZ,
+                            ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        }
     } else if(ui.robotComboBox->currentIndex()==1) {
-        Q_EMIT plan_ag2(ui.xPosDoubleSpinBox->value()+homeX,
-                        ui.yPosDoubleSpinBox->value()+homeY2,
-                        ui.zPosDoubleSpinBox->value()+homeZ,
-                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        if(ui.worldCoordinatesCheckBox->isChecked()) {
+            Q_EMIT plan_ag2(ui.xPosDoubleSpinBox->value(),
+                            ui.yPosDoubleSpinBox->value(),
+                            ui.zPosDoubleSpinBox->value(),
+                            ui.rollDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.pitchDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.yawDoubleSpinBox->value()*(M_PI/180.0));
+        } else {
+            Q_EMIT plan_ag2(ui.xPosDoubleSpinBox->value()+homeX,
+                            ui.yPosDoubleSpinBox->value()+homeY2,
+                            ui.zPosDoubleSpinBox->value()+homeZ,
+                            ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        }
     }
 }
 
 void MainWindow::on_moveManipPushButton_clicked(bool check)
 {
     if(ui.robotComboBox->currentIndex()==0) {
-        Q_EMIT move_ag1(ui.xPosDoubleSpinBox->value()+homeX,
-                        ui.yPosDoubleSpinBox->value()+homeY1,
-                        ui.zPosDoubleSpinBox->value()+homeZ,
-                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
-
+        if(ui.worldCoordinatesCheckBox->isChecked()) {
+            Q_EMIT move_ag1(ui.xPosDoubleSpinBox->value(),
+                            ui.yPosDoubleSpinBox->value(),
+                            ui.zPosDoubleSpinBox->value(),
+                            ui.rollDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.pitchDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.yawDoubleSpinBox->value()*(M_PI/180.0));
+        } else {
+            Q_EMIT move_ag1(ui.xPosDoubleSpinBox->value()+homeX,
+                            ui.yPosDoubleSpinBox->value()+homeY1,
+                            ui.zPosDoubleSpinBox->value()+homeZ,
+                            ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        }
     } else if(ui.robotComboBox->currentIndex()==1) {
-        Q_EMIT move_ag2(ui.xPosDoubleSpinBox->value()+homeX,
-                        ui.yPosDoubleSpinBox->value()+homeY2,
-                        ui.zPosDoubleSpinBox->value()+homeZ,
-                        ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
-                        ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        if(ui.worldCoordinatesCheckBox->isChecked()) {
+            Q_EMIT move_ag2(ui.xPosDoubleSpinBox->value(),
+                            ui.yPosDoubleSpinBox->value(),
+                            ui.zPosDoubleSpinBox->value(),
+                            ui.rollDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.pitchDoubleSpinBox->value()*(M_PI/180.0),
+                            ui.yawDoubleSpinBox->value()*(M_PI/180.0));
+        } else {
+            Q_EMIT move_ag2(ui.xPosDoubleSpinBox->value()+homeX,
+                            ui.yPosDoubleSpinBox->value()+homeY2,
+                            ui.zPosDoubleSpinBox->value()+homeZ,
+                            ((homeRoll+ui.rollDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homePitch+ui.pitchDoubleSpinBox->value())*M_PI)/180.0,
+                            ((homeYaw+ui.yawDoubleSpinBox->value())*M_PI)/180.0);
+        }
     }
 }
 
@@ -494,7 +528,9 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
 	Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
 	std::cout << "first run, positioning camera over part A" << std::endl;
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partApath);
+        Q_EMIT setProcessImageDepthLambda(0.20);
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
 	std::cout << "Camera is now positioned over part A" << std::endl;
         movedToPartA = true;
@@ -522,7 +558,9 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check)
 	std::cout << "First run, positioning camera over part B" << std::endl;
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partBpath);
+        Q_EMIT setProcessImageDepthLambda(0.15);
         Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
 	std::cout << "Camera is now positioned over part B" << std::endl;
         movedToPartB = true;
@@ -573,6 +611,48 @@ void MainWindow::on_moveGripperPartBButton_clicked(bool check)
 
     printToLog("Position of part b in world");
     printToLog(partB);
+}
+
+void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
+{
+    if(check) {
+        if(ui.robotComboBox->currentIndex() == 0) {
+            ui.xPosDoubleSpinBox->setValue(homeX);
+            ui.yPosDoubleSpinBox->setValue(homeY1);
+            ui.zPosDoubleSpinBox->setValue(homeZ);
+            ui.rollDoubleSpinBox->setValue(homeRoll);
+            ui.pitchDoubleSpinBox->setValue(homePitch);
+            ui.yawDoubleSpinBox->setValue(homeYaw);
+        } else if(ui.robotComboBox->currentIndex() == 1) {
+            ui.xPosDoubleSpinBox->setValue(homeX);
+            ui.yPosDoubleSpinBox->setValue(homeY2);
+            ui.zPosDoubleSpinBox->setValue(homeZ);
+            ui.rollDoubleSpinBox->setValue(homeRoll);
+            ui.pitchDoubleSpinBox->setValue(homePitch);
+            ui.yawDoubleSpinBox->setValue(homeYaw);
+        }
+    } else {
+        if(ui.robotComboBox->currentIndex() == 0) {
+            ui.xPosDoubleSpinBox->setValue(0);
+            ui.yPosDoubleSpinBox->setValue(0);
+            ui.zPosDoubleSpinBox->setValue(0);
+            ui.rollDoubleSpinBox->setValue(0);
+            ui.pitchDoubleSpinBox->setValue(0);
+            ui.yawDoubleSpinBox->setValue(0);
+        } else if(ui.robotComboBox->currentIndex() == 1) {
+            ui.xPosDoubleSpinBox->setValue(0);
+            ui.yPosDoubleSpinBox->setValue(0);
+            ui.zPosDoubleSpinBox->setValue(0);
+            ui.rollDoubleSpinBox->setValue(0);
+            ui.pitchDoubleSpinBox->setValue(0);
+            ui.yawDoubleSpinBox->setValue(0);
+        }
+    }
+}
+
+void MainWindow::on_robotComboBox_currentIndexChanged(int i)
+{
+    Q_EMIT on_worldCoordinatesCheckBox_clicked(ui.worldCoordinatesCheckBox->isChecked());
 }
 
 

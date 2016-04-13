@@ -37,7 +37,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -442,7 +442,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="minimumSize">
            <size>
@@ -458,7 +458,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_5">
           <property name="minimumSize">
            <size>
@@ -474,7 +474,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_6">
           <property name="minimumSize">
            <size>
@@ -490,7 +490,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <widget class="Line" name="line_2">
           <property name="minimumSize">
            <size>
@@ -503,7 +503,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QDoubleSpinBox" name="xPosDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -531,7 +531,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QDoubleSpinBox" name="yPosDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -556,7 +556,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QDoubleSpinBox" name="zPosDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -578,7 +578,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_8">
           <property name="minimumSize">
            <size>
@@ -594,7 +594,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="label_9">
           <property name="minimumSize">
            <size>
@@ -610,7 +610,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="label_10">
           <property name="minimumSize">
            <size>
@@ -626,7 +626,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QDoubleSpinBox" name="rollDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -648,7 +648,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QDoubleSpinBox" name="pitchDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -670,7 +670,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QDoubleSpinBox" name="yawDoubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -692,7 +692,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
+        <item row="9" column="0" colspan="2">
          <widget class="Line" name="line_3">
           <property name="minimumSize">
            <size>
@@ -705,7 +705,7 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="10" column="0">
          <widget class="QPushButton" name="planTrajPushButton">
           <property name="minimumSize">
            <size>
@@ -718,7 +718,7 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
+        <item row="10" column="1">
          <widget class="QPushButton" name="moveManipPushButton">
           <property name="maximumSize">
            <size>
@@ -734,7 +734,7 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="1">
+        <item row="13" column="1">
          <widget class="QPushButton" name="homeManipPushButton">
           <property name="maximumSize">
            <size>
@@ -750,7 +750,7 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="1">
+        <item row="12" column="1">
          <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -763,17 +763,24 @@
           </property>
          </spacer>
         </item>
-        <item row="11" column="0">
+        <item row="12" column="0">
          <widget class="QPushButton" name="closeGripperButton">
           <property name="text">
            <string>Close gripper</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
+        <item row="11" column="0">
          <widget class="QPushButton" name="openGripperButton">
           <property name="text">
            <string>Open gripper</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="worldCoordinatesCheckBox">
+          <property name="text">
+           <string>World Coord.</string>
           </property>
          </widget>
         </item>
