@@ -23,6 +23,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     : QMainWindow(parent)
     , qnode(argc,argv)
     , currentCloud(new pcl::PointCloud<pcl::PointXYZ>)
+    , partApath(ros::package::getPath("agilus_master_project")+"/resources/parts/org2.png")
+    , partBpath(ros::package::getPath("agilus_master_project")+"/resources/parts/bottom2.png")
+
 {
     qRegisterMetaType<pcl::PointCloud<pcl::PointXYZ>::Ptr >("pcl::PointCloud<pcl::PointXYZ>::Ptr");
     qRegisterMetaType<cv::Mat>("cv::Mat");
@@ -88,6 +91,8 @@ void MainWindow::init()
     ui.settingsTabManager->setCurrentIndex(0);
     filters = new PclFilters();
     runStream = false;
+    movedToPartA = false;
+    movedToPartB = false;
 
     box = new ModelLoader("nuc-42-100");
     box->populateLoader();
@@ -213,6 +218,69 @@ void MainWindow::initRobotUI()
     homeRoll = 0.0;
     homePitch = 180.0;
     homeYaw = 0.0;
+}
+
+void MainWindow::detect3D()
+{
+    //detect objects here
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr detected(new pcl::PointCloud<pcl::PointXYZRGB>);
+    icpResult objectDetectionResult = filters->object_detection(currentCloud,models.at(ui.objectsListA->currentIndex())->getModels(),models.at(ui.objectsListB->currentIndex())->getModels());
+    displayNewPointCloud(filters->visualize_rgb(objectDetectionResult.cloud));
+
+    frameA = objectDetectionResult.partAFinal;
+    frameB = objectDetectionResult.partBFinal;
+
+    partAInTag = world * worldToTag * tagToCamera * objectDetectionResult.partAFinal;
+    partBInTag = world * worldToTag * tagToCamera * objectDetectionResult.partBFinal;
+
+    viewer1->addCoordinateSystem(0.2,frameA);
+    viewer1->addCoordinateSystem(0.2,frameB);
+
+    QString partA = "X: ";
+    partA.append(QString::number(partAInTag(0,3)));
+    partA.append(", Y: ");
+    partA.append(QString::number(partAInTag(1,3)));
+    partA.append(", Z: ");
+    partA.append(QString::number(partAInTag(2,3)));
+
+    QString partB = "X: ";
+    partB.append(QString::number(partBInTag(0,3)));
+    partB.append(", Y: ");
+    partB.append(QString::number(partBInTag(1,3)));
+    partB.append(", Z: ");
+    partB.append(QString::number(partBInTag(2,3)));
+
+    printToLog("Position of part a in world:");
+    printToLog(partA);
+    printToLog("Position of part b in world");
+    printToLog(partB);
+
+    ui.testPlanButton->setEnabled(true);
+    ui.testMoveButton->setEnabled(true);
+    ui.plan2DcorrButton->setEnabled(true);
+    ui.move2DcorrButton->setEnabled(true);
+}
+
+void MainWindow::detectAngle2D(double &part)
+{
+    int counter = qnode.getCounter();
+    std::vector<double> temp;
+    temp.push_back(qnode.getTheta());
+
+    while(true){
+        while(qnode.getCounter() == counter);
+        counter = qnode.getCounter();
+        temp.push_back(qnode.getTheta());
+        if(temp.size() > 10){
+            double d = 0.0;
+            for(int i=0; i<temp.size(); i++) {
+                d = d + temp.at(i);
+            }
+            double average = d/(double)temp.size();
+            part = average;
+            return;
+        }
+    }
 }
 
 void MainWindow::updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -415,6 +483,93 @@ void MainWindow::on_closeGripperButton_clicked(bool check)
     }
 }
 
+void MainWindow::on_autoDetection3dButton_clicked(bool check)
+{
+    detect3D();
+}
+
+void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
+{
+    if(!movedToPartA) {
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT setProcessImageMatchingPicture(partApath);
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+        movedToPartA = true;
+    } else {
+        double correctionY = partAInTag(0,3)-qnode.getYoffset();
+        double correctionX = partAInTag(1,3)-qnode.getXoffset();
+        Q_EMIT move_ag2(correctionY,correctionX,1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+        partAInTag(0,3) = correctionY;
+        partAInTag(1,3) = correctionX;
+    }
+}
+
+void MainWindow::on_auto2dFirstPartAngleButton_clicked(bool check)
+{
+    detectAngle2D(anglePartA);
+    QString averageString = "Average angle part A: ";
+    averageString.append(QString::number(anglePartA));
+    printToLog(averageString);
+}
+
+void MainWindow::on_auto2dSecondPartButton_clicked(bool check)
+{
+    if(!movedToPartB) {
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT setProcessImageMatchingPicture(partBpath);
+        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
+        movedToPartB = true;
+    } else {
+        double correctionY = partBInTag(0,3)-qnode.getYoffset();
+        double correctionX = partBInTag(1,3)-qnode.getXoffset();
+        Q_EMIT move_ag2(correctionY,correctionX,1.39,0,3.1415,(-23.5)*(M_PI/180.0));
+        partBInTag(0,3) = correctionY;
+        partBInTag(1,3) = correctionX;
+    }
+}
+
+void MainWindow::on_auto2dSecondPartAngleButton_clicked(bool check)
+{
+    detectAngle2D(anglePartB);
+    QString averageString = "Average angle part B: ";
+    averageString.append(QString::number(anglePartB));
+    printToLog(averageString);
+}
+
+void MainWindow::on_moveGripperPartAButton_clicked(bool check)
+{
+    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch,homeYaw);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+
+    QString partA = "X: ";
+    partA.append(QString::number(partAInTag(0,3)));
+    partA.append(", Y: ");
+    partA.append(QString::number(partAInTag(1,3)));
+    partA.append(", Z: ");
+    partA.append(QString::number(partAInTag(2,3)));
+
+    printToLog("Position of part a in world:");
+    printToLog(partA);
+}
+
+void MainWindow::on_moveGripperPartBButton_clicked(bool check)
+{
+    Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch,homeYaw);
+    Q_EMIT move_ag1(partBInTag(0,3),partBInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+
+    QString partB = "X: ";
+    partB.append(QString::number(partBInTag(0,3)));
+    partB.append(", Y: ");
+    partB.append(QString::number(partBInTag(1,3)));
+    partB.append(", Z: ");
+    partB.append(QString::number(partBInTag(2,3)));
+
+    printToLog("Position of part b in world");
+    printToLog(partB);
+}
+
+
 void MainWindow::on_loadPCDButton_clicked(bool check)
 {
     runStream = false;
@@ -458,41 +613,7 @@ void MainWindow::on_subscribeToTopicButton2_clicked(bool check)
 
 void MainWindow::on_detectObjectsButton_clicked(bool check)
 {
-    //detect objects here
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr detected(new pcl::PointCloud<pcl::PointXYZRGB>);
-    icpResult objectDetectionResult = filters->object_detection(currentCloud,models.at(ui.objectsListA->currentIndex())->getModels(),models.at(ui.objectsListB->currentIndex())->getModels());
-    displayNewPointCloud(filters->visualize_rgb(objectDetectionResult.cloud));
-
-    frameA = objectDetectionResult.partAFinal;
-    frameB = objectDetectionResult.partBFinal;
-
-    partAInTag = world * worldToTag * tagToCamera * objectDetectionResult.partAFinal;
-    partBInTag = world * worldToTag * tagToCamera * objectDetectionResult.partBFinal;
-
-    viewer1->addCoordinateSystem(0.2,frameA);
-    viewer1->addCoordinateSystem(0.2,frameB);
-
-    QString partA = "X: ";
-    partA.append(QString::number(partAInTag(0,3)));
-    partA.append(", Y: ");
-    partA.append(QString::number(partAInTag(1,3)));
-    partA.append(", Z: ");
-    partA.append(QString::number(partAInTag(2,3)));
-
-    QString partB = "X: ";
-    partB.append(QString::number(partBInTag(0,3)));
-    partB.append(", Y: ");
-    partB.append(QString::number(partBInTag(1,3)));
-    partB.append(", Z: ");
-    partB.append(QString::number(partBInTag(2,3)));
-
-    printToLog("Position of part a in world:");
-    printToLog(partA);
-    printToLog("Position of part b in world");
-    printToLog(partB);
-
-    ui.testPlanButton->setEnabled(true);
-    ui.testMoveButton->setEnabled(true);
+    detect3D();
 }
 
 }  // namespace agilus_master_project

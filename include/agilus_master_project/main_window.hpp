@@ -38,6 +38,8 @@ public:
     void init();
     void init_descriptor_keypoint_combobox();
     void initRobotUI();
+    void detect3D();
+    void detectAngle2D(double &part);
 
 
 public Q_SLOTS:
@@ -68,6 +70,13 @@ public Q_SLOTS:
      void on_setDepthPushButton_clicked(bool check);
      void on_openGripperButton_clicked(bool check);
      void on_closeGripperButton_clicked(bool check);
+     void on_autoDetection3dButton_clicked(bool check);
+     void on_auto2dFirstPartButton_clicked(bool check);
+     void on_auto2dFirstPartAngleButton_clicked(bool check);
+     void on_auto2dSecondPartButton_clicked(bool check);
+     void on_auto2dSecondPartAngleButton_clicked(bool check);
+     void on_moveGripperPartAButton_clicked(bool check);
+     void on_moveGripperPartBButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);
@@ -104,10 +113,15 @@ private:
     std::vector<ModelLoader*> models;
     QStringList objects;
     bool runStream;
+    bool movedToPartA, movedToPartB;
     QImage saveImage;
     Eigen::Affine3f frameA,frameB,tag,worldFrame,camera;
     Eigen::Matrix4f cameraToTag, world, tagToCamera, worldToTag, partAInTag, partBInTag, tempWorld, tagToWorld;
     double homeX, homeY1, homeY2, homeZ, homeRoll, homePitch, homeYaw;
+    double anglePartA, anglePartB;
+
+    std::string partApath;
+    std::string partBpath;
 };
 
 }  // namespace agilus_master_project

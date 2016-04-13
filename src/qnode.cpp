@@ -67,6 +67,8 @@ bool QNode::init() {
     plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
     plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
 
+    counter = 0;
+
 	start();
 	return true;
 }
@@ -224,6 +226,7 @@ void QNode::object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg)
     x_object = msg->x;
     y_object = msg->y;
     theta_object = msg->theta;
+    counter++;
 }
 
 QImage QNode::mat2qimage(cv::Mat& mat) {
@@ -332,6 +335,11 @@ double QNode::getYoffset()
     return y_object;
 }
 
+double QNode::getTheta()
+{
+    return theta_object;
+}
+
 bool QNode::getImageReading()
 {
     return imageReading;
@@ -340,6 +348,10 @@ bool QNode::getImageReading()
 void QNode::setImageReading(bool reading)
 {
     this->imageReading = reading;
+}
+
+int QNode::getCounter() {
+    return counter;
 }
 
 }  // namespace agilus_master_project

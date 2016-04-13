@@ -17,6 +17,7 @@
 *****************************************************************************/
 
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <string>
 #include <QThread>
 #include <QStringListModel>
@@ -82,6 +83,8 @@ public:
                         double yaw);
     double getXoffset();
     double getYoffset();
+    double getTheta();
+    int getCounter();
 
 public Q_SLOTS:
     void subscribeToPointCloud2(QString topic);
@@ -162,6 +165,7 @@ private:
     kuka_rsi_hw_interface::write_8_outputs agilusDigout;
 
     double x_object, y_object, theta_object;
+    int counter;
 
 };
 
