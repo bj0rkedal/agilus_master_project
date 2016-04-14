@@ -58,7 +58,7 @@ bool QNode::init() {
     planClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/plan_pose");
     planClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/plan_pose");
 
-    setAgilus1Digout = n.serviceClient<kuka_rsi_hw_interface::write_8_outputs>("/ag1/kuka_hardware_interface/write_8_outputs");
+    setAgilus1Digout = n.serviceClient<kuka_rsi_hw_interface::write_8_outputs>("/ag1/kuka_hardware_interface/write_8_digital_outputs");
 
     object2Dpose = n.subscribe<geometry_msgs::Pose2D,QNode>("/object_2D_detected/object1", 1000, &QNode::object2DPoseCallback,this);
 
