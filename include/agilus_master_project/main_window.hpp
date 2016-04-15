@@ -77,6 +77,7 @@ public Q_SLOTS:
      void on_auto2dSecondPartAngleButton_clicked(bool check);
      void on_moveGripperPartAButton_clicked(bool check);
      void on_moveGripperPartBButton_clicked(bool check);
+     void on_assemblePartsButton_clicked(bool check);
      void on_worldCoordinatesCheckBox_clicked(bool check);
      void on_robotComboBox_currentIndexChanged(int i);
      void on_resetSequenceButton_clicked(bool check);

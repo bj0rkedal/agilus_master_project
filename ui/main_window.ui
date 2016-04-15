@@ -292,8 +292,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>278</width>
-             <height>209</height>
+             <width>254</width>
+             <height>208</height>
             </rect>
            </property>
            <attribute name="label">
@@ -865,14 +865,14 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="label_18">
           <property name="text">
            <string>Reset sequence</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QPushButton" name="resetSequenceButton">
           <property name="text">
            <string>RESET</string>
@@ -907,7 +907,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <spacer name="verticalSpacer_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -919,6 +919,20 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="7" column="1">
+         <widget class="QPushButton" name="assemblePartsButton">
+          <property name="text">
+           <string>Execute</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>Assemble parts</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

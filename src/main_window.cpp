@@ -627,6 +627,16 @@ void MainWindow::on_moveGripperPartBButton_clicked(bool check)
     Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.37,0,3.1415,deployAngle);
 }
 
+void MainWindow::on_assemblePartsButton_clicked(bool check)
+{
+    double deployAngle = (160.0+anglePartB+4.0)*(M_PI/180.0);
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.34,0,3.1415,deployAngle);
+    Q_EMIT openAG1Gripper();
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.29,0,3.1415,deployAngle);
+    Q_EMIT closeAG1Gripper();
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.40,0,3.1415,deployAngle);
+}
+
 void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
 {
     if(check) {
