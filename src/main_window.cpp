@@ -271,7 +271,7 @@ void MainWindow::detectAngle2D(double &part)
         while(qnode.getCounter() == counter);
         counter = qnode.getCounter();
         temp.push_back(qnode.getTheta());
-        if(temp.size() > 10){
+        if(temp.size() > 20){
             double d = 0.0;
             for(int i=0; i<temp.size(); i++) {
                 d = d + temp.at(i);
@@ -584,7 +584,7 @@ void MainWindow::on_moveGripperPartAButton_clicked(bool check)
     Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.35,0,3.1415,grippingAngle);
 
     QString angle = "Gripping part A at angle: ";
-    angle.append(QString::number(grippingAngle));
+    angle.append(QString::number(grippingAngle*(180.0/M_PI)));
     printToLog(angle);
 
     QString partA = "X: ";
@@ -607,24 +607,24 @@ void MainWindow::on_moveGripperPartBButton_clicked(bool check)
 {
     Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
 
-    double deployAngle = (160.0+anglePartB)*(M_PI/180.0);
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3),1.45,0,3.1415,deployAngle);
+    double deployAngle = (160.0+anglePartB+4.0)*(M_PI/180.0);
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.45,0,3.1415,deployAngle);
 
     QString angle = "Deploying part A at part B with angle: ";
-    angle.append(QString::number(deployAngle));
+    angle.append(QString::number(deployAngle*(180.0/M_PI)));
     printToLog(angle);
 
     QString partB = "X: ";
     partB.append(QString::number(partBInTag(0,3)+0.005));
     partB.append(", Y: ");
-    partB.append(QString::number(partBInTag(1,3)));
+    partB.append(QString::number(partBInTag(1,3)+0.001));
     partB.append(", Z: ");
     partB.append(QString::number(partBInTag(2,3)));
 
     printToLog("Position of part B in world");
     printToLog(partB);
 
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3),1.38,0,3.1415,deployAngle);
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.37,0,3.1415,deployAngle);
 }
 
 void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
