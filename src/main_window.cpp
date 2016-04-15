@@ -525,14 +525,12 @@ void MainWindow::on_autoDetection3dButton_clicked(bool check)
 void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
 {
     if(!movedToPartA) {
-	Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
-	std::cout << "first run, positioning camera over part A" << std::endl;
+        Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partApath);
         Q_EMIT setProcessImageDepthLambda(0.138);
-        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
-	std::cout << "Camera is now positioned over part A" << std::endl;
         movedToPartA = true;
     } else {
         double correctionY = partAInTag(0,3)-qnode.getYoffset();
@@ -554,15 +552,13 @@ void MainWindow::on_auto2dFirstPartAngleButton_clicked(bool check)
 void MainWindow::on_auto2dSecondPartButton_clicked(bool check)
 {
     if(!movedToPartB) {
-	Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
-	std::cout << "First run, positioning camera over part B" << std::endl;
+        Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partBpath);
         Q_EMIT setProcessImageDepthLambda(0.153);
-        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
-	std::cout << "Camera is now positioned over part B" << std::endl;
         movedToPartB = true;
     } else {
         double correctionY = partBInTag(0,3)-qnode.getYoffset();
@@ -584,33 +580,51 @@ void MainWindow::on_auto2dSecondPartAngleButton_clicked(bool check)
 void MainWindow::on_moveGripperPartAButton_clicked(bool check)
 {
     Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
-    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+    double grippingAngle = (160.0+anglePartA)*(M_PI/180.0);
+    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.35,0,3.1415,grippingAngle);
+
+    QString angle = "Gripping part A at angle: ";
+    angle.append(QString::number(grippingAngle));
+    printToLog(angle);
 
     QString partA = "X: ";
-    partA.append(QString::number(partAInTag(0,3)));
+    partA.append(QString::number(partAInTag(0,3)+0.008));
     partA.append(", Y: ");
     partA.append(QString::number(partAInTag(1,3)));
     partA.append(", Z: ");
     partA.append(QString::number(partAInTag(2,3)));
 
-    printToLog("Position of part a in world:");
+    printToLog("Position of part A in world:");
     printToLog(partA);
+
+    Q_EMIT openAG1Gripper();
+    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.198,0,3.1415,grippingAngle);
+    Q_EMIT closeAG1Gripper();
+    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.45,0,3.1415,grippingAngle);
 }
 
 void MainWindow::on_moveGripperPartBButton_clicked(bool check)
 {
     Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+
+    double deployAngle = (160.0+anglePartB)*(M_PI/180.0);
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3),1.45,0,3.1415,deployAngle);
+
+    QString angle = "Deploying part A at part B with angle: ";
+    angle.append(QString::number(deployAngle));
+    printToLog(angle);
 
     QString partB = "X: ";
-    partB.append(QString::number(partBInTag(0,3)));
+    partB.append(QString::number(partBInTag(0,3)+0.005));
     partB.append(", Y: ");
     partB.append(QString::number(partBInTag(1,3)));
     partB.append(", Z: ");
     partB.append(QString::number(partBInTag(2,3)));
 
-    printToLog("Position of part b in world");
+    printToLog("Position of part B in world");
     printToLog(partB);
+
+    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3),1.38,0,3.1415,deployAngle);
 }
 
 void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
@@ -653,6 +667,14 @@ void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
 void MainWindow::on_robotComboBox_currentIndexChanged(int i)
 {
     Q_EMIT on_worldCoordinatesCheckBox_clicked(ui.worldCoordinatesCheckBox->isChecked());
+}
+
+void MainWindow::on_resetSequenceButton_clicked(bool check)
+{
+    movedToPartA = false;
+    movedToPartB = false;
+    QString reset = "Reset detection of parts. Start with 3D detection!";
+    printToLog(reset);
 }
 
 

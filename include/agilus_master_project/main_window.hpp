@@ -79,6 +79,7 @@ public Q_SLOTS:
      void on_moveGripperPartBButton_clicked(bool check);
      void on_worldCoordinatesCheckBox_clicked(bool check);
      void on_robotComboBox_currentIndexChanged(int i);
+     void on_resetSequenceButton_clicked(bool check);
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);

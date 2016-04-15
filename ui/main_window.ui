@@ -37,7 +37,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -125,8 +125,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -138,8 +138,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -151,8 +151,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -272,7 +272,11 @@
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QDoubleSpinBox" name="lambdaDoubleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="lambdaDoubleSpinBox">
+              <property name="decimals">
+               <number>3</number>
+              </property>
+             </widget>
             </item>
             <item row="7" column="1">
              <widget class="QPushButton" name="setDepthPushButton">
@@ -288,8 +292,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>254</width>
-             <height>208</height>
+             <width>278</width>
+             <height>209</height>
             </rect>
            </property>
            <attribute name="label">
@@ -396,8 +400,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <attribute name="label">
@@ -836,42 +840,42 @@
         <item row="5" column="0">
          <widget class="QLabel" name="label_16">
           <property name="text">
-           <string>Move gripper 1</string>
+           <string>Move gripper to</string>
           </property>
          </widget>
         </item>
         <item row="5" column="1">
          <widget class="QPushButton" name="moveGripperPartAButton">
           <property name="text">
-           <string>Execute</string>
+           <string>Part 1</string>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="label_17">
           <property name="text">
-           <string>Move gripper 2</string>
+           <string>Move gripper to</string>
           </property>
          </widget>
         </item>
         <item row="6" column="1">
          <widget class="QPushButton" name="moveGripperPartBButton">
           <property name="text">
-           <string>Execute</string>
+           <string>Part 2</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="label_18">
           <property name="text">
-           <string>TextLabel</string>
+           <string>Reset sequence</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <widget class="QPushButton" name="pushButton_6">
+        <item row="8" column="1">
+         <widget class="QPushButton" name="resetSequenceButton">
           <property name="text">
-           <string>PushButton</string>
+           <string>RESET</string>
           </property>
          </widget>
         </item>
@@ -902,6 +906,19 @@
            <string>Record angle</string>
           </property>
          </widget>
+        </item>
+        <item row="7" column="1">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>400</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
