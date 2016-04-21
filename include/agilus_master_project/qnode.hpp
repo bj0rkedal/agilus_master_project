@@ -47,6 +47,8 @@
 #include <image_processor/setMatchingImage1.h>
 #include <image_processor/setImageDepth.h>
 
+#include <moveit/move_group_interface/move_group.h>
+
 #include <kuka_rsi_hw_interface/write_8_outputs.h>
 
 #include <agilus_planner/Pose.h>
@@ -85,6 +87,8 @@ public:
     double getYoffset();
     double getTheta();
     int getCounter();
+    geometry_msgs::PoseStamped getAg1CurrentPose();
+    geometry_msgs::PoseStamped getAg2CurrentPose();
 
 public Q_SLOTS:
     void subscribeToPointCloud2(QString topic);
@@ -163,6 +167,9 @@ private:
     ros::ServiceClient setAgilus1Digout;
     agilus_planner::Pose pose_service;
     kuka_rsi_hw_interface::write_8_outputs agilusDigout;
+
+    moveit::planning_interface::MoveGroup *ag1;
+    moveit::planning_interface::MoveGroup *ag2;
 
     double x_object, y_object, theta_object;
     int counter;

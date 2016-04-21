@@ -13,7 +13,7 @@ project(agilus_master_project)
 find_package(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 set  (VTK_LIBRARIES   vtkRendering vtkGraphics vtkHybrid QVTK)
-find_package(catkin REQUIRED COMPONENTS qt_build roscpp pcl_conversions pcl_ros cv_bridge image_transport)
+find_package(catkin REQUIRED COMPONENTS qt_build roscpp pcl_conversions pcl_ros cv_bridge image_transport moveit_ros_planning_interface)
 include_directories(${catkin_INCLUDE_DIRS})
 
 # Use this to define what the package will export (e.g. libs, headers).

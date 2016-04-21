@@ -526,6 +526,7 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
 {
     if(!movedToPartA) {
         Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
+        Q_EMIT move_ag2(0.35,0.20,1.66,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
@@ -543,6 +544,11 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
 
 void MainWindow::on_auto2dFirstPartAngleButton_clicked(bool check)
 {
+    //correct partAinTag to be correct in robot world frames
+    geometry_msgs::PoseStamped ag2Pos = qnode.getAg2CurrentPose();
+    partAInTag(0,3) = ag2Pos.pose.position.x + 0.007;
+    partAInTag(1,3) = ag2Pos.pose.position.y + 0.001;
+
     detectAngle2D(anglePartA);
     QString averageString = "Average angle part A: ";
     averageString.append(QString::number(anglePartA));
@@ -571,6 +577,10 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check)
 
 void MainWindow::on_auto2dSecondPartAngleButton_clicked(bool check)
 {
+    geometry_msgs::PoseStamped ag2Pos = qnode.getAg2CurrentPose();
+    partBInTag(0,3) = ag2Pos.pose.position.x + 0.007;
+    partBInTag(1,3) = ag2Pos.pose.position.y + 0.001;
+
     detectAngle2D(anglePartB);
     QString averageString = "Average angle part B: ";
     averageString.append(QString::number(anglePartB));
@@ -579,16 +589,18 @@ void MainWindow::on_auto2dSecondPartAngleButton_clicked(bool check)
 
 void MainWindow::on_moveGripperPartAButton_clicked(bool check)
 {
+    Q_EMIT move_ag2(0.25,0.0,1.45,0,3.1415,(-23.5)*(M_PI/180.0));
     Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
     double grippingAngle = (160.0+anglePartA)*(M_PI/180.0);
-    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.35,0,3.1415,grippingAngle);
+    Q_EMIT move_ag1(0.35,-0.20,1.66,0,3.1415,0.0);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,grippingAngle);
 
     QString angle = "Gripping part A at angle: ";
     angle.append(QString::number(grippingAngle*(180.0/M_PI)));
     printToLog(angle);
 
     QString partA = "X: ";
-    partA.append(QString::number(partAInTag(0,3)+0.008));
+    partA.append(QString::number(partAInTag(0,3)));
     partA.append(", Y: ");
     partA.append(QString::number(partAInTag(1,3)));
     partA.append(", Z: ");
@@ -598,43 +610,39 @@ void MainWindow::on_moveGripperPartAButton_clicked(bool check)
     printToLog(partA);
 
     Q_EMIT openAG1Gripper();
-    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.198,0,3.1415,grippingAngle);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.203,0,3.1415,grippingAngle);
     Q_EMIT closeAG1Gripper();
-    Q_EMIT move_ag1(partAInTag(0,3)+0.008,partAInTag(1,3),1.45,0,3.1415,grippingAngle);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,grippingAngle);
 }
 
 void MainWindow::on_moveGripperPartBButton_clicked(bool check)
 {
     Q_EMIT move_ag2(homeX,homeY2,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
 
-    double deployAngle = (160.0+anglePartB+4.0)*(M_PI/180.0);
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.45,0,3.1415,deployAngle);
+    double deployAngle = (160.0+anglePartB+3.5)*(M_PI/180.0);
+    Q_EMIT move_ag1(partBInTag(0,3)-0.0023,partBInTag(1,3)-0.0005,1.45,0,3.1415,deployAngle);
 
     QString angle = "Deploying part A at part B with angle: ";
     angle.append(QString::number(deployAngle*(180.0/M_PI)));
     printToLog(angle);
 
     QString partB = "X: ";
-    partB.append(QString::number(partBInTag(0,3)+0.005));
+    partB.append(QString::number(partBInTag(0,3)-0.0023));
     partB.append(", Y: ");
-    partB.append(QString::number(partBInTag(1,3)+0.001));
+    partB.append(QString::number(partBInTag(1,3)-0.0005));
     partB.append(", Z: ");
     partB.append(QString::number(partBInTag(2,3)));
 
     printToLog("Position of part B in world");
     printToLog(partB);
 
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.37,0,3.1415,deployAngle);
+    Q_EMIT move_ag1(partBInTag(0,3)-0.0023,partBInTag(1,3)-0.0005,1.375,0,3.1415,deployAngle);
 }
 
 void MainWindow::on_assemblePartsButton_clicked(bool check)
 {
-    double deployAngle = (160.0+anglePartB+4.0)*(M_PI/180.0);
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.34,0,3.1415,deployAngle);
-    Q_EMIT openAG1Gripper();
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.29,0,3.1415,deployAngle);
-    Q_EMIT closeAG1Gripper();
-    Q_EMIT move_ag1(partBInTag(0,3)+0.005,partBInTag(1,3)+0.001,1.40,0,3.1415,deployAngle);
+    double deployAngle = (160.0+anglePartB+3.5)*(M_PI/180.0);
+    Q_EMIT move_ag1(partBInTag(0,3)-0.0023,partBInTag(1,3)-0.0005,1.36,0,3.1415,deployAngle);
 }
 
 void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check)
@@ -686,7 +694,6 @@ void MainWindow::on_resetSequenceButton_clicked(bool check)
     QString reset = "Reset detection of parts. Start with 3D detection!";
     printToLog(reset);
 }
-
 
 void MainWindow::on_loadPCDButton_clicked(bool check)
 {
