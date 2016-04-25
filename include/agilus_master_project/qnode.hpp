@@ -116,6 +116,7 @@ Q_SIGNALS:
     void rosShutdown();
     void updatePointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void update2Dimage(QImage image);
+    void disableAuto();
 
 private:
 	int init_argc;

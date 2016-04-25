@@ -43,8 +43,14 @@ bool QNode::init() {
 	}
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
-    ag1 = new moveit::planning_interface::MoveGroup("agilus1");
-    ag2 = new moveit::planning_interface::MoveGroup("agilus2");
+    try{
+        ag1 = new moveit::planning_interface::MoveGroup("agilus1");
+        ag2 = new moveit::planning_interface::MoveGroup("agilus2");
+    }
+    catch(...){
+        Q_EMIT disableAuto();
+    }
+
 	// Add your ros communications here.
     setImageprocessorRunning = n.serviceClient<image_processor::setProcessRunning>("/object_2D_detection/setProcessRunning");
     setImageprocessorColor = n.serviceClient<image_processor::setVideoColor>("/object_2D_detection/setVideoColor");

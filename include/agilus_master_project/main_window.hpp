@@ -38,7 +38,7 @@ public:
     void init();
     void init_descriptor_keypoint_combobox();
     void initRobotUI();
-    void detect3D();
+    void detect3D(int partAIndex, int partBIndex);
     void detectAngle2D(double &part);
 
 
@@ -81,6 +81,7 @@ public Q_SLOTS:
      void on_worldCoordinatesCheckBox_clicked(bool check);
      void on_robotComboBox_currentIndexChanged(int i);
      void on_resetSequenceButton_clicked(bool check);
+     void disableAuto();
 
 Q_SIGNALS:
      void subscribeToPointCloud2(QString topic);

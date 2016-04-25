@@ -48,6 +48,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(this,SIGNAL(setProcessImageDepthLambda(double)),&qnode,SLOT(setProcessImageDepthLambda(double)));
     QObject::connect(this,SIGNAL(closeAG1Gripper()),&qnode,SLOT(closeAG1Gripper()));
     QObject::connect(this,SIGNAL(openAG1Gripper()),&qnode,SLOT(openAG1Gripper()));
+    QObject::connect(&qnode,SIGNAL(disableAuto()),this,SLOT(disableAuto()));
     init();
     init_descriptor_keypoint_combobox();
     initRobotUI();
@@ -139,6 +140,8 @@ void MainWindow::init()
     objects.append("freak thing");
     ui.objectsListA->addItems(objects);
     ui.objectsListB->addItems(objects);
+    ui.objectsListA->setCurrentIndex(2);
+    ui.objectsListB->setCurrentIndex(1);
 
     ui.testPlanButton->setEnabled(false);
     ui.testMoveButton->setEnabled(false);
@@ -200,8 +203,8 @@ void MainWindow::init_descriptor_keypoint_combobox()
     keyPointLabels.append("AKAZE");
     ui.descriptorComboBox->addItems(descriptorLabels);
     ui.keypointComboBox->addItems(keyPointLabels);
-    ui.keypointComboBox->setCurrentIndex(1);
-    ui.descriptorComboBox->setCurrentIndex(1);
+    ui.keypointComboBox->setCurrentIndex(0);
+    ui.descriptorComboBox->setCurrentIndex(0);
 }
 
 void MainWindow::initRobotUI()
@@ -220,11 +223,11 @@ void MainWindow::initRobotUI()
     homeYaw = 0.0;
 }
 
-void MainWindow::detect3D()
+void MainWindow::detect3D(int partAIndex, int partBIndex)
 {
     //detect objects here
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr detected(new pcl::PointCloud<pcl::PointXYZRGB>);
-    icpResult objectDetectionResult = filters->object_detection(currentCloud,models.at(ui.objectsListA->currentIndex())->getModels(),models.at(ui.objectsListB->currentIndex())->getModels());
+    icpResult objectDetectionResult = filters->object_detection(currentCloud,models.at(partAIndex)->getModels(),models.at(partBIndex)->getModels());
     displayNewPointCloud(filters->visualize_rgb(objectDetectionResult.cloud));
 
     frameA = objectDetectionResult.partAFinal;
@@ -519,7 +522,7 @@ void MainWindow::on_closeGripperButton_clicked(bool check)
 
 void MainWindow::on_autoDetection3dButton_clicked(bool check)
 {
-    detect3D();
+    detect3D(2,1);
 }
 
 void MainWindow::on_auto2dFirstPartButton_clicked(bool check)
@@ -695,6 +698,19 @@ void MainWindow::on_resetSequenceButton_clicked(bool check)
     printToLog(reset);
 }
 
+void MainWindow::disableAuto()
+{
+    ui.autoDetection3dButton->setEnabled(false);
+    ui.auto2dFirstPartButton->setEnabled(false);
+    ui.auto2dFirstPartAngleButton->setEnabled(false);
+    ui.auto2dSecondPartButton->setEnabled(false);
+    ui.auto2dSecondPartAngleButton->setEnabled(false);
+    ui.moveGripperPartAButton->setEnabled(false);
+    ui.moveGripperPartBButton->setEnabled(false);
+    ui.assemblePartsButton->setEnabled(false);
+    ui.resetSequenceButton->setEnabled(false);
+}
+
 void MainWindow::on_loadPCDButton_clicked(bool check)
 {
     runStream = false;
@@ -738,7 +754,7 @@ void MainWindow::on_subscribeToTopicButton2_clicked(bool check)
 
 void MainWindow::on_detectObjectsButton_clicked(bool check)
 {
-    detect3D();
+    detect3D(ui.objectsListA->currentIndex(),ui.objectsListB->currentIndex());
 }
 
 }  // namespace agilus_master_project

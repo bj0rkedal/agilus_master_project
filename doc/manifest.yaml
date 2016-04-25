@@ -1,0 +1,17 @@
+actions: []
+authors: Minions
+brief: ''
+bugtracker: ''
+depends:
+- qt_build
+- catkin
+- roscpp
+- libqt4-dev
+description: agilus_master_project
+license: BSD
+maintainers: Minions <Minions@gmail.com>
+msgs: []
+package_type: package
+repo_url: ''
+srvs: []
+url: ''

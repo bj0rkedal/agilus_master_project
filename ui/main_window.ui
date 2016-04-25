@@ -37,7 +37,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -53,7 +53,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="settingVisualize3D">
            <property name="geometry">
@@ -61,7 +61,7 @@
              <x>0</x>
              <y>0</y>
              <width>278</width>
-             <height>178</height>
+             <height>271</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -120,50 +120,6 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="page_5">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>278</width>
-             <height>178</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Page</string>
-           </attribute>
-           <layout class="QFormLayout" name="formLayout_7">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-            </property>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="page_6">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>278</width>
-             <height>178</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Page</string>
-           </attribute>
-          </widget>
-          <widget class="QWidget" name="page_2">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>278</width>
-             <height>178</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Page 2</string>
-           </attribute>
-          </widget>
          </widget>
         </item>
         <item>
@@ -189,7 +145,7 @@
         <item>
          <widget class="QToolBox" name="toolBox_2">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_3">
            <property name="geometry">
@@ -197,7 +153,7 @@
              <x>0</x>
              <y>0</y>
              <width>278</width>
-             <height>209</height>
+             <height>240</height>
             </rect>
            </property>
            <attribute name="label">
@@ -297,8 +253,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>254</width>
-             <height>208</height>
+             <width>278</width>
+             <height>240</height>
             </rect>
            </property>
            <attribute name="label">
@@ -399,19 +355,6 @@
              </widget>
             </item>
            </layout>
-          </widget>
-          <widget class="QWidget" name="page">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Page</string>
-           </attribute>
           </widget>
          </widget>
         </item>

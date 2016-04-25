@@ -28,7 +28,7 @@
 #include <pcl/features/gfpfh.h>
 #include <pcl/features/our_cvfh.h>
 #include <pcl/features/esf.h>
-#include "pcl/features/fpfh.h"
+#include <pcl/features/fpfh.h>
 #include <pcl/features/fpfh_omp.h>
 
 #include "pcl/keypoints/sift_keypoint.h"

@@ -35,12 +35,9 @@ class ModelLoader : public QObject
     Q_OBJECT
 
 public:
-
-
     ModelLoader(pcl::PolygonMesh mesh, std::string mesh_name);
 
     ModelLoader(std::string mesh_name);
-
 
     ~ModelLoader();
 
@@ -87,17 +84,17 @@ private:
 
     //! Saves the ray trace point clouds to files
     /*!
-     * This function will save all teh infromation from the ray_trace_clouds variable to the given path
+     * This function will save all the infromation from the ray_trace_clouds variable to the given path
      */
     bool savePointClouds();
 
     std::string path; //!< The path for saving and loading files.
     std::string mesh_name; //!< The name of the mesh. Used for saving and loading file names.
     std::vector<RayTraceCloud> ray_trace_clouds; //!< List of ray trace clouds.
-    pcl::PolygonMesh mesh; //!< The mesh which is used for generation
-    int cloud_resolution; //!< The resolution camera when generating clouds
-    int tesselation_level; //!< The tesselation level of the sphere for the camera
-    PclFilters *filters;
+    pcl::PolygonMesh mesh; //!< The mesh which is used for generation.
+    int cloud_resolution; //!< The resolution camera when generating clouds.
+    int tesselation_level; //!< The tesselation level of the sphere for the camera.
+    PclFilters *filters;  //!< Object for calculating features of the raytraced models.
 };
 
 }
