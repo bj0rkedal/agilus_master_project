@@ -384,7 +384,7 @@ void MainWindow::on_updateSettingsPushButton_clicked(bool check)
 
 void MainWindow::on_imageToDetectButton_clicked(bool check)
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/minions",tr("Image (*.png)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/minions",tr("png (*.png);;jpg (*.jpg *.jpeg)"));
     if(fileName.length() != 0) {
         QString tmpstring = "Loading matching image from ";
         tmpstring.append(fileName);
