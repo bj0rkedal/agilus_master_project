@@ -17,6 +17,8 @@
 #include <vtkRenderWindow.h>
 #include <QVTKWidget.h>
 #include "opencv2/core.hpp"
+#include <pcl/io/ply_io.h>
+#include <pcl/io/vtk_lib_io.h>
 
 
 namespace agilus_master_project {
@@ -81,6 +83,7 @@ public Q_SLOTS:
      void on_worldCoordinatesCheckBox_clicked(bool check);
      void on_robotComboBox_currentIndexChanged(int i);
      void on_resetSequenceButton_clicked(bool check);
+     void on_create_training_set_button_clicked(bool check);
      void disableAuto();
 
 Q_SIGNALS:

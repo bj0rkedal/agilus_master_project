@@ -181,6 +181,23 @@ void MainWindow::init()
     }
     ui.topicComboBox2->addItems(list2);
     ui.logViewer->insertPlainText("User interface initiated");
+    QStringList raytraceResolution;
+    QStringList raytraceTesselationLevel;
+    raytraceResolution.append("50");
+    raytraceResolution.append("100");
+    raytraceResolution.append("200");
+    raytraceResolution.append("300");
+    raytraceResolution.append("400");
+    raytraceResolution.append("500");
+    raytraceResolution.append("600");
+    raytraceResolution.append("700");
+    raytraceResolution.append("800");
+    raytraceResolution.append("900");
+    raytraceTesselationLevel.append("42");
+    raytraceTesselationLevel.append("162");
+    raytraceTesselationLevel.append("642");
+    ui.resolution_combobox->addItems(raytraceResolution);
+    ui.tesselation_level_combobox->addItems(raytraceTesselationLevel);
 }
 
 void MainWindow::init_descriptor_keypoint_combobox()
@@ -696,6 +713,48 @@ void MainWindow::on_resetSequenceButton_clicked(bool check)
     movedToPartB = false;
     QString reset = "Reset detection of parts. Start with 3D detection!";
     printToLog(reset);
+}
+
+void MainWindow::on_create_training_set_button_clicked(bool check)
+{
+    QString msg = "";
+    QString partName;
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open STL File"),"/home/minions",tr("STL cad model (*.stl)"));
+    if(!filePath.isEmpty()){
+        bool ok;
+        partName = QInputDialog::getText(this, tr("Name the part"), tr("Part name"), QLineEdit::Normal, tr(""), &ok);
+        if(!partName.isEmpty() && ok){
+        }
+        else{
+            return;
+        }
+    }
+    else{
+        return;
+    }
+
+    msg.append("Rendering file: ");
+    msg.append(filePath);
+    msg.append(", as partname: ");
+    msg.append(partName);
+    printToLog(msg);
+    pcl::PolygonMesh mesh;
+    pcl::io::loadPolygonFileSTL(filePath.toStdString(),mesh);
+
+    pcl::PointCloud<pcl::PointXYZ> scaled_mesh;
+    Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
+    scaleMatrix(0,0)=0.001f;
+    scaleMatrix(1,1)=0.001f;
+    scaleMatrix(2,2)=0.001f;
+
+    pcl::fromPCLPointCloud2(mesh.cloud,scaled_mesh);
+    pcl::transformPointCloud(scaled_mesh,scaled_mesh,scaleMatrix);
+    pcl::toPCLPointCloud2(scaled_mesh, mesh.cloud);
+
+    ModelLoader *render = new ModelLoader(mesh, partName.toStdString());
+    render->setCloudResolution(ui.resolution_combobox->currentText().toInt());
+    render->setTesselation_level(ui.tesselation_level_combobox->currentIndex()+1);
+    render->populateLoader();
 }
 
 void MainWindow::disableAuto()
