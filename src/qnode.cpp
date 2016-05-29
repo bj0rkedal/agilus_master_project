@@ -1,11 +1,9 @@
-/**
- * @file /src/qnode.cpp
- *
- * @brief Ros communication central!
- *
- * @date February 2011
- **/
-
+//
+// Original author Asgeir Bjoerkedal & Kristoffer Larsen. Latest change date 01.05.2016
+// qnode.cpp is responsible for all cross application communication within ROS.
+//
+// Created as part of the software solution for a Master's Thesis in Production Technology at NTNU Trondheim.
+//
 
 #include <ros/ros.h>
 #include <ros/network.h>
@@ -14,34 +12,31 @@
 #include <sstream>
 #include "../include/agilus_master_project/qnode.hpp"
 
-
 namespace agilus_master_project {
-
 
 QNode::QNode(int argc, char** argv ) :
 	init_argc(argc),
     init_argv(argv),
     cloud(new pcl::PointCloud<pcl::PointXYZ>),
-    imageReading(false)
-    {
+    imageReading(false){
     qRegisterMetaType<pcl::PointCloud<pcl::PointXYZ>::Ptr >("pcl::PointCloud<pcl::PointXYZ>::Ptr");
     qRegisterMetaType<cv::Mat>("cv::Mat");
 }
 
-QNode::~QNode() {
+QNode::~QNode(){
     if(ros::isStarted()) {
-      ros::shutdown(); // explicitly needed since we use ros::start();
+      ros::shutdown();
       ros::waitForShutdown();
     }
 	wait();
 }
 
-bool QNode::init() {
+bool QNode::init(){
 	ros::init(init_argc,init_argv,"agilus_master_project");
 	if ( ! ros::master::check() ) {
 		return false;
 	}
-	ros::start(); // explicitly needed since our nodehandle is going out of scope.
+    ros::start();
 	ros::NodeHandle n;
     try{
         ag1 = new moveit::planning_interface::MoveGroup("agilus1");
@@ -51,7 +46,6 @@ bool QNode::init() {
         Q_EMIT disableAuto();
     }
 
-	// Add your ros communications here.
     setImageprocessorRunning = n.serviceClient<image_processor::setProcessRunning>("/object_2D_detection/setProcessRunning");
     setImageprocessorColor = n.serviceClient<image_processor::setVideoColor>("/object_2D_detection/setVideoColor");
     setImageprocessorUndistort = n.serviceClient<image_processor::setVideoUndistortion>("/object_2D_detection/setVideoUndistortion");
@@ -60,12 +54,10 @@ bool QNode::init() {
     setImageprocessorDescriptor = n.serviceClient<image_processor::setDescriptorType>("/object_2D_detection/setDescriptorType");
     setImageprocessorMatchingImage = n.serviceClient<image_processor::setMatchingImage1>("/object_2D_detection/setMatchingImage1");
     setImageprocessorDepth = n.serviceClient<image_processor::setImageDepth>("/object_2D_detection/setImageDepth");
-
     goToClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/go_to_pose");
     goToClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/go_to_pose");
     planClient_ag1 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag1/plan_pose");
     planClient_ag2 = n.serviceClient<agilus_planner::Pose>("/robot_service_ag2/plan_pose");
-
     setAgilus1Digout = n.serviceClient<kuka_rsi_hw_interface::write_8_outputs>("/ag1/kuka_hardware_interface/write_8_digital_outputs");
 
     object2Dpose = n.subscribe<geometry_msgs::Pose2D,QNode>("/object_2D_detected/object1", 1000, &QNode::object2DPoseCallback,this);
@@ -74,108 +66,91 @@ bool QNode::init() {
     plan_ag1(0.445,-0.6025,1.66,0.0,3.1415,0.0);
     plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
     plan_ag2(0.445,0.6025,1.66,0.0,3.1415,0.0);
-
     counter = 0;
-
 	start();
 	return true;
 }
 
-void QNode::run() {
+void QNode::run(){
     ros::Rate loop_rate(60);
 	while ( ros::ok() ) {
-
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
-    Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
+    Q_EMIT rosShutdown(); // used to signal the gui for a shutdown
 }
 
-void QNode::subscribeToPointCloud2(QString topic)
-{
+void QNode::subscribeToPointCloud2(QString topic){
     ros::NodeHandle n;
     const char *tmp = topic.toUtf8().constData();
     pointCloud2Sub = n.subscribe<sensor_msgs::PointCloud2, QNode>(tmp, 1, &QNode::cloudCallback,this);
 
 }
 
-void QNode::subscribeTo2DobjectDetected(QString topic)
-{
+void QNode::subscribeTo2DobjectDetected(QString topic){
     ros::NodeHandle n;
     const char *tmp = topic.toUtf8().constData();
     object2DdetectedSub = n.subscribe<sensor_msgs::Image, QNode>(tmp, 1, &QNode::object2DCallback,this);
 }
 
-void QNode::setProcessImageRunning(bool processRunning)
-{
+void QNode::setProcessImageRunning(bool processRunning){
     setImproRunning.request.running = processRunning;
     setImageprocessorRunning.call(setImproRunning);
 }
 
-void QNode::setProcessImageColor(bool color)
-{
+void QNode::setProcessImageColor(bool color){
     setVideoColor.request.color = color;
     setImageprocessorColor.call(setVideoColor);
 }
 
-void QNode::setProcessImageUndistort(bool undistort)
-{
+void QNode::setProcessImageUndistort(bool undistort){
     setVideoUndist.request.undistort = undistort;
     setImageprocessorUndistort.call(setVideoUndist);
 }
 
-void QNode::setProcessImageBruteforce(bool bruteforce)
-{
+void QNode::setProcessImageBruteforce(bool bruteforce){
     setBF.request.bruteforce = bruteforce;
     setImageprocessorBruteforce.call(setBF);
 }
 
-void QNode::setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor)
-{
+void QNode::setProcessImageKeypointDescriptor(std::string keypoint, std::string descriptor){
     setKeypoint.request.type = keypoint;
     setDescriptor.request.type = descriptor;
     setImageprocessorKeypoint.call(setKeypoint);
     setImageprocessorDescriptor.call(setDescriptor);
 }
 
-void QNode::setProcessImageMatchingPicture(std::string imagePath)
-{
+void QNode::setProcessImageMatchingPicture(std::string imagePath){
     setMatchingImage.request.imagePath = imagePath;
     setImageprocessorMatchingImage.call(setMatchingImage);
 }
 
-void QNode::setProcessImageDepthLambda(double lambda)
-{
+void QNode::setProcessImageDepthLambda(double lambda){
     setImageDepth.request.lambda = lambda;
     setImageprocessorDepth.call(setImageDepth);
 }
 
-void QNode::move_ag1(double x, double y, double z, double roll, double pitch, double yaw)
-{
+void QNode::move_ag1(double x, double y, double z, double roll, double pitch, double yaw){
     setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
     goToClient_ag1.call(pose_service);
 }
 
-void QNode::move_ag2(double x, double y, double z, double roll, double pitch, double yaw)
-{
+void QNode::move_ag2(double x, double y, double z, double roll, double pitch, double yaw){
     setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
     goToClient_ag2.call(pose_service);
 }
 
-void QNode::plan_ag1(double x, double y, double z, double roll, double pitch, double yaw)
-{
+void QNode::plan_ag1(double x, double y, double z, double roll, double pitch, double yaw){
     setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
     planClient_ag1.call(pose_service);
 }
 
-void QNode::plan_ag2(double x, double y, double z, double roll, double pitch, double yaw)
-{
+void QNode::plan_ag2(double x, double y, double z, double roll, double pitch, double yaw){
     setPoseRequest(false,true,x,y,z,true,roll,pitch,yaw);
     planClient_ag2.call(pose_service);
 }
 
-void QNode::closeAG1Gripper()
-{
+void QNode::closeAG1Gripper(){
     agilusDigout.request.out1 = true;
     agilusDigout.request.out2 = true;
     agilusDigout.request.out3 = false;
@@ -187,8 +162,7 @@ void QNode::closeAG1Gripper()
     setAgilus1Digout.call(agilusDigout);
 }
 
-void QNode::openAG1Gripper()
-{
+void QNode::openAG1Gripper(){
     agilusDigout.request.out1 = false;
     agilusDigout.request.out2 = true;
     agilusDigout.request.out3 = false;
@@ -206,14 +180,12 @@ void QNode::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &cloud_msg){
     Q_EMIT updatePointCloud(cloud);
 }
 
-void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image)
-{
+void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image){
     // Early return if we are still reading the image
     if(imageReading){
         return;
     }
     cv_bridge::CvImagePtr cv_ptr;
-
     try
     {
         cv_ptr = cv_bridge::toCvCopy(image, "8UC3");
@@ -223,14 +195,12 @@ void QNode::object2DCallback(const sensor_msgs::ImageConstPtr &image)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-
     // Emitting update image, remember to set the flag
     setImageReading(true);
     Q_EMIT update2Dimage(mat2qimage(cv_ptr->image));
 }
 
-void QNode::object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg)
-{
+void QNode::object2DPoseCallback(const geometry_msgs::Pose2DConstPtr &msg){
     x_object = msg->x;
     y_object = msg->y;
     theta_object = msg->theta;
@@ -244,39 +214,32 @@ QImage QNode::mat2qimage(cv::Mat& mat) {
             QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
             return image;
         }
-
         // 8-bit, 3 channel
         case CV_8UC3: {
             const uchar *qImageBuffer = (const uchar*)mat.data;
             QImage image(qImageBuffer, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
             return image.rgbSwapped();
         }
-
         // 8-bit, 1 channel
         case CV_8UC1: {
             static QVector<QRgb>  sColorTable;
-
             // only create our color table once
             if (sColorTable.isEmpty()) {
                 for (int i = 0; i < 256; ++i)
                     sColorTable.push_back(qRgb(i, i, i));
             }
-
             QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Indexed8);
             image.setColorTable(sColorTable);
-
             return image;
         }
-
         default:
             std::cout << "ASM::cvMatToQImage() - cv::Mat image type not handled in switch:" << mat.type();
             break;
     }
-
     return QImage();
 }
 
-std::string QNode::type2str(int type) {
+std::string QNode::type2str(int type){
     std::string r;
 
     uchar depth = type & CV_MAT_DEPTH_MASK;
@@ -308,7 +271,6 @@ std::string QNode::type2str(int type) {
             r = "User";
             break;
     }
-
     r += "C";
     r += (chans + '0');
 
@@ -319,8 +281,7 @@ std::string QNode::type2str(int type) {
     return r;
 }
 
-void QNode::setPoseRequest(bool relative, bool position, double x, double y, double z, bool orientation, double roll, double pitch, double yaw)
-{
+void QNode::setPoseRequest(bool relative, bool position, double x, double y, double z, bool orientation, double roll, double pitch, double yaw){
     pose_service.request.header.frame_id = "/world";
     pose_service.request.relative = relative;
     pose_service.request.set_position = position;
@@ -333,43 +294,35 @@ void QNode::setPoseRequest(bool relative, bool position, double x, double y, dou
     pose_service.request.orientation_y = yaw;
 }
 
-double QNode::getXoffset()
-{
+double QNode::getXoffset(){
     return x_object;
 }
 
-double QNode::getYoffset()
-{
+double QNode::getYoffset(){
     return y_object;
 }
 
-double QNode::getTheta()
-{
+double QNode::getTheta(){
     return theta_object;
 }
 
-bool QNode::getImageReading()
-{
+bool QNode::getImageReading(){
     return imageReading;
 }
 
-void QNode::setImageReading(bool reading)
-{
+void QNode::setImageReading(bool reading){
     this->imageReading = reading;
 }
 
-int QNode::getCounter() {
+int QNode::getCounter(){
     return counter;
 }
 
-geometry_msgs::PoseStamped QNode::getAg1CurrentPose()
-{
+geometry_msgs::PoseStamped QNode::getAg1CurrentPose(){
     return (ag1->getCurrentPose());
 }
 
-geometry_msgs::PoseStamped QNode::getAg2CurrentPose()
-{
+geometry_msgs::PoseStamped QNode::getAg2CurrentPose(){
     return (ag2->getCurrentPose());
 }
-
 }  // namespace agilus_master_project

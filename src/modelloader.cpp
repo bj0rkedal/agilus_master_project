@@ -1,8 +1,10 @@
 //
-// Original code by Adam Leon Kleppe on 01.02.16
-// Modified by Kristoffer Larsen
+// Original code by Adam Leon Kleppe on 01.02.16, modifiead by Kristoffer Larsen.
+// Latest change date 01.05.2016
+// modelloader.cpp is a tool used to create training set used for 3D object detection.
 //
-
+// Modified and used as part of the software solution for a Master's Thesis in Production Technology at NTNU Trondheim.
+//
 
 #include "../include/agilus_master_project/modelloader.hpp"
 
@@ -21,12 +23,9 @@ ModelLoader::ModelLoader(std::string mesh_name) :
     this->setCloudResolution(960);
     this->setPath(ros::package::getPath("agilus_master_project") + "/trace_clouds/");
     this->setTesselation_level(1);
-
 }
 
-
 ModelLoader::~ModelLoader() {}
-
 
 void ModelLoader::populateLoader() {
     if(!this->loadPointClouds()) {
@@ -44,7 +43,6 @@ std::vector<RayTraceCloud> ModelLoader::getModels(bool load){
     if(load && this->ray_trace_clouds.empty()) {
         this->populateLoader();
     }
-
     return this->ray_trace_clouds;
 }
 
@@ -152,7 +150,6 @@ bool ModelLoader::savePointClouds() {
     ROS_INFO("\033[33mSuccessfully saved %d ray traces", (int)this->ray_trace_clouds.size());
 }
 
-
 bool ModelLoader::loadPointClouds() {
     // Set the save path
     std::string save_path = this->path + this->mesh_name + "/";
@@ -190,7 +187,6 @@ bool ModelLoader::loadPointClouds() {
         pcl::io::loadPCDFile(save_path + cloud["keypoints"].as<std::string>(), *ray_trace.keypoints);
         pcl::io::loadPCDFile(save_path + cloud["ldescriptor"].as<std::string>(), *ray_trace.local_descriptors);
         pcl::io::loadPCDFile(save_path + cloud["gdescriptor"].as<std::string>(), *ray_trace.global_descriptors);
-
 
         for(int x = 0; x < 4; x++) {
             for(int y = 0; y < 4; y++) {

@@ -37,7 +37,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -60,8 +60,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>278</width>
-             <height>240</height>
+             <width>197</width>
+             <height>106</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -121,6 +121,14 @@
            </layout>
           </widget>
           <widget class="QWidget" name="create_training_set">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>278</width>
+             <height>240</height>
+            </rect>
+           </property>
            <attribute name="label">
             <string>Create training set</string>
            </attribute>
@@ -923,6 +931,9 @@
         <string>3D Detection</string>
        </attribute>
        <layout class="QFormLayout" name="formLayout_3">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
@@ -967,33 +978,6 @@
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Test section</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QPushButton" name="testPlanButton">
-          <property name="minimumSize">
-           <size>
-            <width>134</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Plan</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QPushButton" name="testMoveButton">
-          <property name="text">
-           <string>Move</string>
           </property>
          </widget>
         </item>
