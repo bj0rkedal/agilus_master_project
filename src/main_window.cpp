@@ -177,6 +177,11 @@ void MainWindow::init(){
     raytraceTesselationLevel.append("642");
     ui.resolution_combobox->addItems(raytraceResolution);
     ui.tesselation_level_combobox->addItems(raytraceTesselationLevel);
+
+    pickUpHeight = 1.203;
+    deployHeight = 1.38; //1.375
+    detectionHeightA = 1.35;
+    detectionHeightB = 1.39;
 }
 
 void MainWindow::init_descriptor_keypoint_combobox(){
@@ -490,7 +495,7 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check){
         Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
         Q_EMIT move_ag2(0.35,0.20,1.66,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.66,0,3.1415,(-23.5)*(M_PI/180.0));
-        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),detectionHeightA,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partApath);
         Q_EMIT setProcessImageDepthLambda(0.138);
@@ -498,7 +503,7 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check){
     } else {
         double correctionY = partAInTag(0,3)-qnode.getYoffset();
         double correctionX = partAInTag(1,3)-qnode.getXoffset();
-        Q_EMIT move_ag2(correctionY,correctionX,1.35,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(correctionY,correctionX,detectionHeightA,0,3.1415,(-23.5)*(M_PI/180.0));
         partAInTag(0,3) = correctionY;
         partAInTag(1,3) = correctionX;
 
@@ -527,7 +532,7 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check){
         Q_EMIT move_ag1(homeX,homeY1,homeZ,homeRoll,homePitch*(M_PI/180.0),homeYaw);
         Q_EMIT move_ag2(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.45,0,3.1415,(-23.5)*(M_PI/180.0));
-        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),1.39,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(partBInTag(0,3),partBInTag(1,3),detectionHeightB,0,3.1415,(-23.5)*(M_PI/180.0));
         Q_EMIT setProcessImageKeypointDescriptor("SIFT", "SIFT");
         Q_EMIT setProcessImageMatchingPicture(partBpath);
         Q_EMIT setProcessImageDepthLambda(0.153);
@@ -535,7 +540,7 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check){
     } else {
         double correctionY = partBInTag(0,3)-qnode.getYoffset();
         double correctionX = partBInTag(1,3)-qnode.getXoffset();
-        Q_EMIT move_ag2(correctionY,correctionX,1.39,0,3.1415,(-23.5)*(M_PI/180.0));
+        Q_EMIT move_ag2(correctionY,correctionX,detectionHeightB,0,3.1415,(-23.5)*(M_PI/180.0));
         partBInTag(0,3) = correctionY;
         partBInTag(1,3) = correctionX;
 
@@ -543,7 +548,7 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check){
         position.append(QString::number(partBInTag(0,3)));
         position.append(", Y: ");
         position.append(QString::number(partBInTag(1,3)));
-        printToLog("Part B is located in world at: ");
+        printToLog("Part B is now located in world at: ");
         printToLog(position);
     }
 }
@@ -605,7 +610,7 @@ void MainWindow::on_moveGripperPartBButton_clicked(bool check){
     printToLog("Position of part B in world");
     printToLog(partB);
 
-    Q_EMIT move_ag1(partBInTag(0,3)-0.0023,partBInTag(1,3)-0.0005,1.375,0,3.1415,deployAngle);
+    Q_EMIT move_ag1(partBInTag(0,3)-0.0023,partBInTag(1,3)-0.0005,deployHeight,0,3.1415,deployAngle);
 }
 
 void MainWindow::on_assemblePartsButton_clicked(bool check){
@@ -655,10 +660,36 @@ void MainWindow::on_robotComboBox_currentIndexChanged(int i){
 
 void MainWindow::on_objectsListA_currentIndexChanged(int i)
 {
-    if(i == 0) {pickUpHeight = 1.35;}
-    else if(i == 1) {pickUpHeight = 1.30;}
-    else if(i == 2) {pickUpHeight = 1.203;}
-    else if(i == 3) {pickUpHeight = 1.30;}
+    if(i == 0) { // nuc
+        detectionHeightA = 1.40;
+        pickUpHeight = 1.35;
+    } else if(i == 1) { // cone
+        detectionHeightA = 1.39;
+        pickUpHeight = 1.30;
+    } else if(i == 2) { // piston (freak)
+        detectionHeightA = 1.35;
+        pickUpHeight = 1.203;
+    } else if(i == 3) { // snus_en
+        detectionHeightA = 1.35;
+        pickUpHeight = 1.30;
+    }
+}
+
+void MainWindow::on_objectsListB_currentIndexChanged(int i)
+{
+    if(i == 0) { // nuc
+        detectionHeightB = 1.40;
+        deployHeight = 1.35;
+    } else if(i == 1) { // cone
+        detectionHeightB = 1.39;
+        deployHeight = 1.38;
+    } else if(i == 2) { // piston (freak)
+        detectionHeightB = 1.35;
+        deployHeight = 1.38;
+    } else if(i == 3) { // snus_en
+        detectionHeightB = 1.35;
+        deployHeight = 1.30;
+    }
 }
 
 void MainWindow::on_resetSequenceButton_clicked(bool check){

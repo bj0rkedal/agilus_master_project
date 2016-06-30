@@ -37,7 +37,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -125,8 +125,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>278</width>
-             <height>240</height>
+             <width>258</width>
+             <height>110</height>
             </rect>
            </property>
            <attribute name="label">
@@ -194,8 +194,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>278</width>
-             <height>240</height>
+             <width>276</width>
+             <height>195</height>
             </rect>
            </property>
            <attribute name="label">
@@ -295,8 +295,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>278</width>
-             <height>240</height>
+             <width>254</width>
+             <height>206</height>
             </rect>
            </property>
            <attribute name="label">
@@ -915,6 +915,9 @@
         </item>
         <item row="7" column="1">
          <widget class="QPushButton" name="assemblePartsButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Execute</string>
           </property>
