@@ -298,6 +298,8 @@ public Q_SLOTS:
       */
      void on_robotComboBox_currentIndexChanged(int i);
 
+     void on_objectsListA_currentIndexChanged(int i);
+
      /*!
       * \brief Event for the "Reset sequence" button. This resets all the data acquired through the previous automated assembly and
       *        readys the program to run a new autmated assembly.
@@ -448,6 +450,7 @@ private:
     Eigen::Matrix4f cameraToTag, world, tagToCamera, worldToTag, partAInTag, partBInTag, tempWorld, tagToWorld; //!< Homogenous transformation matrices used to transform the object position.
     double homeX, homeY1, homeY2, homeZ, homeRoll, homePitch, homeYaw; //!< Predefined values for the home position of the robotic manipulators.
     double anglePartA, anglePartB; //!< Recorded angle for part A and part B.
+    double pickUpHeight, deployHeight; //!< Height used for picking up and deploying different parts.
 
     std::string partApath; //!< Path to the matching image used for part A.
     std::string partBpath; //!< Path to the matching image used for part B.

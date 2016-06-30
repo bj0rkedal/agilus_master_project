@@ -91,9 +91,11 @@ void MainWindow::init(){
     cone->populateLoader();
     freak = new ModelLoader("freakthing-42-200");
     freak->populateLoader();
+    // Add here
     models.push_back(box);
     models.push_back(cone);
     models.push_back(freak);
+    // And here
     w1 = new QVTKWidget();
     viewer1.reset(new pcl::visualization::PCLVisualizer ("3D Viewer", false));
     w1->SetRenderWindow(viewer1->getRenderWindow());
@@ -122,6 +124,7 @@ void MainWindow::init(){
     objects.append("nuc box");
     objects.append("cone");
     objects.append("freak thing");
+    // Update objects list
     ui.objectsListA->addItems(objects);
     ui.objectsListB->addItems(objects);
     ui.objectsListA->setCurrentIndex(2);
@@ -498,6 +501,13 @@ void MainWindow::on_auto2dFirstPartButton_clicked(bool check){
         Q_EMIT move_ag2(correctionY,correctionX,1.35,0,3.1415,(-23.5)*(M_PI/180.0));
         partAInTag(0,3) = correctionY;
         partAInTag(1,3) = correctionX;
+
+        QString position = "X: ";
+        position.append(QString::number(partAInTag(0,3)));
+        position.append(", Y: ");
+        position.append(QString::number(partAInTag(1,3)));
+        printToLog("Part A is now located in world at: ");
+        printToLog(position);
     }
 }
 
@@ -528,6 +538,13 @@ void MainWindow::on_auto2dSecondPartButton_clicked(bool check){
         Q_EMIT move_ag2(correctionY,correctionX,1.39,0,3.1415,(-23.5)*(M_PI/180.0));
         partBInTag(0,3) = correctionY;
         partBInTag(1,3) = correctionX;
+
+        QString position = "X: ";
+        position.append(QString::number(partBInTag(0,3)));
+        position.append(", Y: ");
+        position.append(QString::number(partBInTag(1,3)));
+        printToLog("Part B is located in world at: ");
+        printToLog(position);
     }
 }
 
@@ -563,7 +580,7 @@ void MainWindow::on_moveGripperPartAButton_clicked(bool check){
     printToLog(partA);
 
     Q_EMIT openAG1Gripper();
-    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.203,0,3.1415,grippingAngle);
+    Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),pickUpHeight,0,3.1415,grippingAngle);
     Q_EMIT closeAG1Gripper();
     Q_EMIT move_ag1(partAInTag(0,3),partAInTag(1,3),1.45,0,3.1415,grippingAngle);
 }
@@ -634,6 +651,14 @@ void MainWindow::on_worldCoordinatesCheckBox_clicked(bool check){
 
 void MainWindow::on_robotComboBox_currentIndexChanged(int i){
     Q_EMIT on_worldCoordinatesCheckBox_clicked(ui.worldCoordinatesCheckBox->isChecked());
+}
+
+void MainWindow::on_objectsListA_currentIndexChanged(int i)
+{
+    if(i == 0) {pickUpHeight = 1.35;}
+    else if(i == 1) {pickUpHeight = 1.30;}
+    else if(i == 2) {pickUpHeight = 1.203;}
+    else if(i == 3) {pickUpHeight = 1.30;}
 }
 
 void MainWindow::on_resetSequenceButton_clicked(bool check){

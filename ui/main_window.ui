@@ -60,8 +60,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>197</width>
-             <height>106</height>
+             <width>195</width>
+             <height>105</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -187,7 +187,7 @@
         <item>
          <widget class="QToolBox" name="toolBox_2">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page_3">
            <property name="geometry">
@@ -195,7 +195,7 @@
              <x>0</x>
              <y>0</y>
              <width>278</width>
-             <height>198</height>
+             <height>240</height>
             </rect>
            </property>
            <attribute name="label">
@@ -794,6 +794,9 @@
         </item>
         <item row="0" column="1">
          <widget class="QPushButton" name="autoDetection3dButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Execute</string>
           </property>
